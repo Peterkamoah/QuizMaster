@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useCallback, useEffect } from 'react';
@@ -18,12 +19,22 @@ interface QuizClientProps {
 export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClientProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() => Array(questions.length).fill(null));
+  
+  // This state holds the selected answer for the *current* question only.
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+
   const [flaggedQuestions, setFlaggedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [visitedQuestions, setVisitedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [startTime] = useState(Date.now());
   const [timeTaken, setTimeTaken] = useState(0);
+
+  // This effect runs every time the question changes
+  // It resets the selected answer for the new question based on the stored answers array.
+  useEffect(() => {
+    setSelectedAnswer(answers[currentQuestionIndex]);
+  }, [currentQuestionIndex, answers]);
 
   useEffect(() => {
     // Mark the initial question as visited
@@ -55,9 +66,10 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   }, [handleSubmit]);
 
   const handleAnswerChange = (optionIndex: number) => {
+    setSelectedAnswer(optionIndex); // Update UI immediately for current question
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = optionIndex;
-    setAnswers(newAnswers);
+    setAnswers(newAnswers); // Save answer permanently
   };
 
   const handleFlag = () => {
@@ -106,7 +118,7 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
             <CardContent>
               <QuestionDisplay
                 question={questions[currentQuestionIndex]}
-                selectedAnswer={answers[currentQuestionIndex]}
+                selectedAnswer={selectedAnswer}
                 onAnswerChange={handleAnswerChange}
                 onFlag={handleFlag}
                 isFlagged={flaggedQuestions[currentQuestionIndex]}
