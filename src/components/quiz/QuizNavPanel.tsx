@@ -27,7 +27,7 @@ export function QuizNavPanel({
       <CardHeader>
         <CardTitle>Quiz Navigation</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-4 sm:grid-cols-5 lg:grid-cols-4 gap-2">
+      <CardContent className="grid grid-cols-5 md:grid-cols-6 gap-2">
         {Array.from({ length: totalQuestions }).map((_, index) => {
           const isCurrent = index === currentQuestionIndex;
           const isAnswered = answers[index] !== null;
@@ -51,7 +51,7 @@ export function QuizNavPanel({
               )}
             >
               {index + 1}
-              {isFlagged && <Flag className="absolute top-0.5 right-0.5 h-3 w-3 text-orange-500 fill-orange-500" />}
+              {isFlagged && <Flag className="absolute top-0.5 right-0.5 h-3 w-3 text-accent fill-accent" />}
             </Button>
           );
         })}

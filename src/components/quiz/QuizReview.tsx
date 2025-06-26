@@ -8,7 +8,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { CheckCircle2, XCircle, ArrowLeft, ArrowRight, Download, Loader2 } from 'lucide-react';
 import KatexRenderer from './KatexRenderer';
 import { cn } from '@/lib/utils';
-import { downloadQuizReviewAsPdf } from '@/lib/pdf-export';
 import { FullReviewForPdf } from './FullReviewForPdf';
 
 
@@ -29,11 +28,52 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
 
     const handleDownloadPdf = async () => {
         setIsDownloading(true);
-        const success = await downloadQuizReviewAsPdf(downloadContainerRef.current);
-        if (!success) {
-            alert("Failed to download PDF. Please try again.");
+        const element = downloadContainerRef.current;
+        if (!element) {
+            alert("Could not find content to download.");
+            setIsDownloading(false);
+            return;
         }
-        setIsDownloading(false);
+
+        try {
+            const { default: jsPDF } = await import('jspdf');
+            const { default: html2canvas } = await import('html2canvas');
+
+            const canvas = await html2canvas(element, { 
+                scale: 2, 
+                windowWidth: element.scrollWidth, 
+                windowHeight: element.scrollHeight,
+                useCORS: true, 
+            });
+            
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            const imgProps = pdf.getImageProperties(imgData);
+            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            
+            let heightLeft = imgHeight;
+            let position = 0;
+    
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+            heightLeft -= pdfHeight;
+    
+            while (heightLeft > 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdfHeight;
+            }
+            
+            pdf.save(`quiz-review-score.pdf`);
+        } catch (error) {
+            console.error("Failed to generate PDF:", error);
+            alert("Failed to download PDF. Please try again.");
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     return (
@@ -69,12 +109,12 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
                             return (
                                <div key={index} className={cn(
                                     "flex items-start space-x-3 p-3 rounded-md border",
-                                    isThisCorrectAnswer && 'bg-green-100 dark:bg-green-900/30 border-green-400',
-                                    isThisUserAnswer && !isThisCorrectAnswer && 'bg-red-100 dark:bg-red-900/30 border-red-400'
+                                    isThisCorrectAnswer && 'bg-success/20 border-success',
+                                    isThisUserAnswer && !isThisCorrectAnswer && 'bg-destructive/20 border-destructive'
                                 )}>
                                     <div className="w-5 h-5 shrink-0 flex items-center justify-center mt-1">
-                                      {isThisCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-500" />}
-                                      {isThisUserAnswer && !isThisCorrectAnswer && <XCircle className="h-5 w-5 text-red-600 dark:text-red-500" />}
+                                      {isThisCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-success" />}
+                                      {isThisUserAnswer && !isThisCorrectAnswer && <XCircle className="h-5 w-5 text-destructive" />}
                                     </div>
                                     <KatexRenderer content={option} className="flex-1"/>
                                </div>

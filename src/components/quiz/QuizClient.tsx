@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useCallback, useEffect } from 'react';
@@ -9,6 +8,7 @@ import { ResultsDisplay } from './ResultsDisplay';
 import { SubmissionModal } from './SubmissionModal';
 import { Timer } from './Timer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
 interface QuizClientProps {
   questions: Question[];
@@ -102,6 +102,8 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   };
 
   const answeredCount = answers.filter(a => a !== null).length;
+  const progressPercentage = (answeredCount / questions.length) * 100;
+
 
   if (isSubmitted) {
     return <ResultsDisplay questions={questions} answers={answers} timeTaken={timeTaken} onReturnHome={onReturnHome} />;
@@ -113,7 +115,11 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
         <div className="lg:col-span-3">
           <Card className="shadow-md">
             <CardHeader>
-              <CardTitle>Question {currentQuestionIndex + 1} of {questions.length}</CardTitle>
+              <div className="flex justify-between items-center mb-4">
+                <CardTitle>Question {currentQuestionIndex + 1} of {questions.length}</CardTitle>
+                <div className="text-sm text-muted-foreground">{answeredCount} of {questions.length} Answered</div>
+              </div>
+              <Progress value={progressPercentage} className="w-full" />
             </CardHeader>
             <CardContent>
               <QuestionDisplay

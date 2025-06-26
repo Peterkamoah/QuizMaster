@@ -8,7 +8,7 @@ import KatexRenderer from './KatexRenderer';
 import { cn } from '@/lib/utils';
 
 // This component renders the full quiz review content for PDF generation.
-// It is defined outside the main component to prevent it from being recreated on every render.
+// It uses explicit, non-themed colors for a consistent print output.
 export const FullReviewForPdf = forwardRef<
     HTMLDivElement,
     { questions: Question[]; answers: (number | null)[]; score: number }
@@ -31,12 +31,12 @@ export const FullReviewForPdf = forwardRef<
                             return (
                                 <div key={optionIndex} className={cn(
                                     "flex items-start space-x-3 p-3 rounded-md border text-left border-gray-300",
-                                    isThisCorrectAnswer && 'bg-green-100 border-green-400',
-                                    isThisUserAnswer && !isThisCorrectAnswer && 'bg-red-100 border-red-400'
+                                    isThisCorrectAnswer && 'bg-emerald-50 border-emerald-300',
+                                    isThisUserAnswer && !isThisCorrectAnswer && 'bg-red-50 border-red-300'
                                 )}>
                                     <div className="w-5 h-5 shrink-0 flex items-center justify-center mt-1">
-                                        {isThisCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-green-600" />}
-                                        {isThisUserAnswer && !isThisCorrectAnswer && <XCircle className="h-5 w-5 text-red-600" />}
+                                        {isThisCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-emerald-700" />}
+                                        {isThisUserAnswer && !isThisCorrectAnswer && <XCircle className="h-5 w-5 text-red-700" />}
                                     </div>
                                     <KatexRenderer content={option} className="flex-1"/>
                                 </div>
@@ -44,7 +44,7 @@ export const FullReviewForPdf = forwardRef<
                         })}
                     </div>
                     {question.explanation && (
-                        <div className="p-4 bg-gray-100 rounded-lg">
+                        <div className="p-4 bg-slate-100 rounded-lg">
                             <h4 className="font-semibold mb-2">Explanation</h4>
                             <div className="prose max-w-none text-sm">
                                 <KatexRenderer content={question.explanation} />

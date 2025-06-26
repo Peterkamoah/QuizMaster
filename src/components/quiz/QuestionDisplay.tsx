@@ -1,4 +1,3 @@
-
 import type { Question } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -61,10 +60,10 @@ export function QuestionDisplay({
 
       <div className="flex justify-between items-center flex-wrap gap-4">
         <Button
-          variant={isFlagged ? "default" : "secondary"}
+          variant={isFlagged ? "accent" : "outline"}
           onClick={onFlag}
         >
-          <Flag className="mr-2 h-4 w-4" />
+          <Flag className={cn("mr-2 h-4 w-4", isFlagged && "fill-current")} />
           {isFlagged ? 'Flagged' : 'Flag for Review'}
         </Button>
         <div className="flex space-x-4">
