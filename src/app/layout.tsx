@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import Script from 'next/script';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
+import 'katex/dist/katex.min.css';
 
 export const metadata: Metadata = {
   title: 'QuizMaster',
@@ -19,9 +20,6 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
-        
-        {/* KaTeX for LaTeX Rendering */}
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0KOVEMVIARBEKrDsKYrvQbCCVDHlb6sUpdblCr5ZKAHuGbXdcmSzw" crossOrigin="anonymous" />
       </head>
       <body className="font-body antialiased">
         {children}
@@ -36,8 +34,6 @@ export default function RootLayout({
           }
         `}
         </Script>
-
-        <Script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" integrity="sha384-XjKyOOlGwcjNTAIQHIpgOno0Hl1YQqzUOEleOLALmuqehneUG+vnGctApi0EBIXt" crossOrigin="anonymous" strategy="afterInteractive" />
       </body>
     </html>
   );
