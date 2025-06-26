@@ -44,14 +44,14 @@ export function QuizNavPanel({
                 isCurrent
                   ? 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
                   : isAnswered
-                  ? 'bg-green-600 dark:bg-green-700 border-green-700 text-white hover:bg-green-700/90'
+                  ? 'bg-success text-success-foreground border-success hover:bg-success/90'
                   : isVisited
                   ? 'bg-card text-card-foreground border border-muted-foreground hover:bg-muted'
                   : 'bg-card text-card-foreground border hover:bg-muted'
               )}
             >
               {index + 1}
-              {isFlagged && <Flag className="absolute top-0.5 right-0.5 h-3 w-3 text-accent-foreground fill-accent" />}
+              {isFlagged && <Flag className="absolute top-0.5 right-0.5 h-3 w-3 text-orange-500 fill-orange-500" />}
             </Button>
           );
         })}
