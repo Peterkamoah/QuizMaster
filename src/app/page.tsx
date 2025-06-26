@@ -81,14 +81,14 @@ export default function Home() {
   }
 
   return (
-    <div className="h-full flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-slate-900">
       <div className="w-full max-w-4xl">
         <header className="mb-8">
           <div className="flex justify-between items-center">
             <div />
             <div className="text-center">
-                <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
-                <p className="text-muted-foreground mt-2">Generate a custom quiz from your study materials.</p>
+                <h1 className="text-4xl font-headline font-bold text-primary dark:text-slate-200">QuizMaster</h1>
+                <p className="text-muted-foreground dark:text-slate-400 mt-2">Generate a custom quiz from your study materials.</p>
             </div>
             <ThemeToggle />
           </div>
@@ -97,13 +97,12 @@ export default function Home() {
         {status === 'loading' ? (
           <div className="flex flex-col items-center justify-center space-y-4 p-8">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="text-lg font-semibold text-muted-foreground">Brewing your questions...</p>
+            <p className="text-lg font-semibold text-muted-foreground dark:text-slate-400">Brewing your questions...</p>
           </div>
         ) : (
           <QuizSetup 
             onStartQuiz={handleQuizStart} 
             onStartSampleQuiz={handleStartSampleQuiz}
-            onLoadingChange={(isLoading) => setStatus(isLoading ? 'loading' : 'idle')}
           />
         )}
       </div>
