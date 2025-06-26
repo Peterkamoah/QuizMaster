@@ -1,3 +1,4 @@
+
 import type { Question } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -37,7 +38,7 @@ export function QuestionDisplay({
       </div>
       
       <RadioGroup
-        value={selectedAnswer !== null ? selectedAnswer.toString() : undefined}
+        value={selectedAnswer !== null ? selectedAnswer.toString() : ""}
         onValueChange={(value) => onAnswerChange(parseInt(value))}
         className="space-y-4"
       >
