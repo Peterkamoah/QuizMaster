@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, FileUp, Loader2, Settings } from 'lucide-react';
+import { FileText, FileUp, Loader2, Settings, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import type { QuizGenerationInput } from '@/ai/flows/quiz-flow';
@@ -19,9 +19,13 @@ interface QuizSetupProps {
     onStartSampleQuiz: () => void;
 }
 
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export function QuizSetup({ onStartQuiz, onStartSampleQuiz }: QuizSetupProps) {
     const [text, setText] = useState('');
     const [pdfFile, setPdfFile] = useState<File | null>(null);
+    const [pdfError, setPdfError] = useState<string | null>(null);
     const [isProcessingPdf, setIsProcessingPdf] = useState(false);
     const { toast } = useToast();
   
@@ -31,10 +35,28 @@ export function QuizSetup({ onStartQuiz, onStartSampleQuiz }: QuizSetupProps) {
     const [isTimerEnabled, setIsTimerEnabled] = useState(true);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setPdfError(null);
+        setPdfFile(null);
+        
         const file = event.target.files?.[0];
-        if (file) {
-            setPdfFile(file);
+        
+        if (!file) {
+            return;
         }
+
+        if (file.type !== 'application/pdf') {
+            setPdfError('Invalid file type. Please select a PDF.');
+            event.target.value = '';
+            return;
+        }
+
+        if (file.size > MAX_FILE_SIZE_BYTES) {
+            setPdfError(`File size exceeds ${MAX_FILE_SIZE_MB}MB limit. Please choose a smaller file.`);
+            event.target.value = '';
+            return;
+        }
+        
+        setPdfFile(file);
     };
     
     const generateQuizFromContext = (context: string) => {
@@ -55,11 +77,11 @@ export function QuizSetup({ onStartQuiz, onStartSampleQuiz }: QuizSetupProps) {
     };
   
     const handleGenerateFromPdf = async () => {
-        if (!pdfFile) {
+        if (!pdfFile || pdfError) {
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'Please select a PDF file first.',
+                description: pdfError || 'Please select a valid PDF file first.',
             });
             return;
         }
@@ -157,15 +179,24 @@ export function QuizSetup({ onStartQuiz, onStartSampleQuiz }: QuizSetupProps) {
                 <Card className="shadow-lg bg-white dark:bg-slate-800 dark:border-slate-700">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200"><FileUp /> From PDF</CardTitle>
-                        <CardDescription className="dark:text-slate-400">Upload a PDF document.</CardDescription>
+                        <CardDescription className="dark:text-slate-400">Upload a PDF document to create your quiz. Max file size: {MAX_FILE_SIZE_MB}MB.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="pdf-upload" className="text-slate-600 dark:text-slate-400">PDF File</Label>
                             <Input id="pdf-upload" type="file" accept=".pdf" onChange={handleFileChange} className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 file:text-slate-400"/>
                         </div>
-                        {pdfFile && <p className="text-sm text-muted-foreground dark:text-slate-400">Selected: {pdfFile.name}</p>}
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleGenerateFromPdf} disabled={!pdfFile || isProcessingPdf}>
+                        
+                        {pdfError && (
+                             <div className="flex items-center gap-2 text-destructive text-sm font-medium">
+                                <AlertTriangle className="h-4 w-4" />
+                                <p>{pdfError}</p>
+                            </div>
+                        )}
+
+                        {pdfFile && !pdfError && <p className="text-sm text-muted-foreground dark:text-slate-400">Selected: {pdfFile.name}</p>}
+
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={handleGenerateFromPdf} disabled={!pdfFile || !!pdfError || isProcessingPdf}>
                             {isProcessingPdf ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
