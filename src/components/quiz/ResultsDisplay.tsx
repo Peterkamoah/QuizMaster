@@ -1,8 +1,10 @@
-import type { Question } from '@/lib/quiz-data';
+import type { Question } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import KatexRenderer from './KatexRenderer';
+
 
 interface ResultsDisplayProps {
   questions: Question[];
@@ -62,7 +64,7 @@ export function ResultsDisplay({ questions, answers, timeTaken }: ResultsDisplay
               <div key={question.id}>
                 <div className="font-semibold text-lg flex items-start">
                   <span className="mr-2">{index + 1}.</span>
-                  <p>{question.question}</p>
+                  <KatexRenderer content={question.question} />
                 </div>
                 <div className="mt-4 space-y-2 pl-6">
                   {question.options.map((option, optionIndex) => {
@@ -82,7 +84,7 @@ export function ResultsDisplay({ questions, answers, timeTaken }: ResultsDisplay
                             {isCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-primary" />}
                             {isUserAnswer && !isCorrect && <XCircle className="h-5 w-5 text-destructive" />}
                         </div>
-                        <span className="flex-1">{option}</span>
+                        <KatexRenderer content={option} className="flex-1"/>
                       </div>
                     );
                   })}

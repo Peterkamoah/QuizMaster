@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import type { Question } from '@/lib/quiz-data';
+import { useState, useCallback } from 'react';
+import type { Question } from '@/lib/types';
 import { QuestionDisplay } from './QuestionDisplay';
 import { QuizNavPanel } from './QuizNavPanel';
 import { ResultsDisplay } from './ResultsDisplay';

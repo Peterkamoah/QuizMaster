@@ -1,10 +1,11 @@
-import type { Question } from '@/lib/quiz-data';
+import type { Question } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Flag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import KatexRenderer from './KatexRenderer';
 
 interface QuestionDisplayProps {
   question: Question;
@@ -31,7 +32,9 @@ export function QuestionDisplay({
 }: QuestionDisplayProps) {
   return (
     <div className="flex flex-col space-y-6">
-      <p className="text-lg font-semibold">{question.question}</p>
+      <div className="text-lg font-semibold">
+        <KatexRenderer content={question.question} />
+      </div>
       
       <RadioGroup
         value={selectedAnswer !== null ? selectedAnswer.toString() : undefined}
@@ -48,9 +51,7 @@ export function QuestionDisplay({
             )}
           >
             <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-            <span className="text-base font-normal w-full">
-              {option}
-            </span>
+            <KatexRenderer content={option} className="text-base font-normal w-full" />
           </Label>
         ))}
       </RadioGroup>
