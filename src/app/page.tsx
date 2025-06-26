@@ -136,6 +136,11 @@ export default function Home() {
     setStatus('active');
   };
 
+  const handleReturnHome = () => {
+    setStatus('idle');
+    setQuizQuestions([]);
+  };
+
   if (status === 'active') {
     return (
       <main className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
@@ -143,7 +148,11 @@ export default function Home() {
           <header className="mb-8 text-center">
             <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
           </header>
-          <QuizClient questions={quizQuestions} timerDuration={isTimerEnabled ? timerDuration : 0} />
+          <QuizClient 
+            questions={quizQuestions} 
+            timerDuration={isTimerEnabled ? timerDuration : 0}
+            onReturnHome={handleReturnHome}
+          />
         </div>
       </main>
     );

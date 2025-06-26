@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { Question } from '@/lib/types';
 import { QuestionDisplay } from './QuestionDisplay';
 import { QuizNavPanel } from './QuizNavPanel';
@@ -12,16 +12,37 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface QuizClientProps {
   questions: Question[];
   timerDuration: number; // in minutes, 0 for no timer
+  onReturnHome: () => void;
 }
 
-export function QuizClient({ questions, timerDuration }: QuizClientProps) {
+export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClientProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() => Array(questions.length).fill(null));
   const [flaggedQuestions, setFlaggedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
+  const [visitedQuestions, setVisitedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [startTime] = useState(Date.now());
   const [timeTaken, setTimeTaken] = useState(0);
+
+  useEffect(() => {
+    // Mark the initial question as visited
+    if (questions.length > 0) {
+      const newVisited = [...visitedQuestions];
+      newVisited[0] = true;
+      setVisitedQuestions(newVisited);
+    }
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions.length]);
+
+
+  const markAsVisited = (index: number) => {
+    if (!visitedQuestions[index]) {
+      const newVisited = [...visitedQuestions];
+      newVisited[index] = true;
+      setVisitedQuestions(newVisited);
+    }
+  };
 
   const handleSubmit = useCallback(() => {
     setTimeTaken(Date.now() - startTime);
@@ -47,7 +68,9 @@ export function QuizClient({ questions, timerDuration }: QuizClientProps) {
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      const nextIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(nextIndex);
+      markAsVisited(nextIndex);
     } else {
       setShowSubmissionModal(true);
     }
@@ -55,18 +78,21 @@ export function QuizClient({ questions, timerDuration }: QuizClientProps) {
 
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      const prevIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(prevIndex);
+      markAsVisited(prevIndex);
     }
   };
 
   const handleSelectQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
+    markAsVisited(index);
   };
 
   const answeredCount = answers.filter(a => a !== null).length;
 
   if (isSubmitted) {
-    return <ResultsDisplay questions={questions} answers={answers} timeTaken={timeTaken} />;
+    return <ResultsDisplay questions={questions} answers={answers} timeTaken={timeTaken} onReturnHome={onReturnHome} />;
   }
 
   return (
@@ -107,6 +133,7 @@ export function QuizClient({ questions, timerDuration }: QuizClientProps) {
             totalQuestions={questions.length}
             answers={answers}
             flaggedQuestions={flaggedQuestions}
+            visitedQuestions={visitedQuestions}
             currentQuestionIndex={currentQuestionIndex}
             onSelectQuestion={handleSelectQuestion}
             onSubmit={() => setShowSubmissionModal(true)}

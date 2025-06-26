@@ -1,11 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { Flag } from 'lucide-react';
 
 interface QuizNavPanelProps {
   totalQuestions: number;
   answers: (number | null)[];
   flaggedQuestions: boolean[];
+  visitedQuestions: boolean[];
   currentQuestionIndex: number;
   onSelectQuestion: (index: number) => void;
   onSubmit: () => void;
@@ -15,6 +17,7 @@ export function QuizNavPanel({
   totalQuestions,
   answers,
   flaggedQuestions,
+  visitedQuestions,
   currentQuestionIndex,
   onSelectQuestion,
   onSubmit
@@ -29,24 +32,31 @@ export function QuizNavPanel({
           const isCurrent = index === currentQuestionIndex;
           const isAnswered = answers[index] !== null;
           const isFlagged = flaggedQuestions[index];
+          const isVisited = visitedQuestions[index];
 
           return (
             <Button
               key={index}
               size="icon"
+              variant="outline"
               onClick={() => onSelectQuestion(index)}
               className={cn(
-                'h-10 w-10 transition-all duration-200 font-bold',
-                isCurrent
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90 ring-2 ring-offset-background ring-ring'
-                    : isFlagged
-                    ? 'bg-accent text-accent-foreground hover:bg-accent/90'
-                    : isAnswered
-                    ? 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                    : 'border border-input bg-background hover:bg-muted'
+                'h-10 w-10 transition-all duration-200 font-bold relative',
+                // Default state
+                'bg-background hover:bg-muted',
+                
+                // Visited but unanswered
+                isVisited && !isAnswered && 'border-muted-foreground',
+                
+                // Answered state
+                isAnswered && 'bg-green-600 border-green-700 text-white hover:bg-green-700 hover:text-white',
+
+                // Current question state (overrides others except flag)
+                isCurrent && 'ring-2 ring-primary ring-offset-background border-primary'
               )}
             >
               {index + 1}
+              {isFlagged && <Flag className="absolute top-0.5 right-0.5 h-3 w-3 text-accent-foreground fill-accent" />}
             </Button>
           );
         })}
