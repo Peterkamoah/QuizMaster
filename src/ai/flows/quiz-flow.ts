@@ -13,6 +13,7 @@ import { z } from 'zod';
 const QuizGenerationInputSchema = z.object({
   context: z.string().describe('The text content to generate the quiz from.'),
   difficulty: z.string().describe('The difficulty level for the quiz questions. e.g., Easy, Medium, Hard.'),
+  numQuestions: z.number().min(1).max(20).describe('The number of questions to generate.'),
 });
 export type QuizGenerationInput = z.infer<typeof QuizGenerationInputSchema>;
 
@@ -34,13 +35,13 @@ const prompt = ai.definePrompt({
   name: 'quizGenerationPrompt',
   input: { schema: QuizGenerationInputSchema },
   output: { schema: QuizGenerationOutputSchema },
-  prompt: `You are an expert quiz creator. Based on the following context, generate a 10-question multiple-choice quiz with a '{{{difficulty}}}' difficulty level.
+  prompt: `You are an expert quiz creator. Based on the following context, generate a {{{numQuestions}}}-question multiple-choice quiz with a '{{{difficulty}}}' difficulty level.
 
 Each question must have exactly 4 options.
 Each question must have a detailed explanation for the correct answer.
 Ensure that any mathematical equations, formulas, or chemical notations are formatted using LaTeX delimiters. Use $...$ for inline math and $$...$$ for block-level math.
 
-The response must be a valid JSON object containing an array of 10 question objects, strictly following the provided JSON schema.
+The response must be a valid JSON object containing an array of {{{numQuestions}}} question objects, strictly following the provided JSON schema.
 
 Context:
 ---

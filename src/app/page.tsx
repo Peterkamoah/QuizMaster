@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Loader2, FileText, FileUp, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateQuiz, type QuizGenerationOutput } from '@/ai/flows/quiz-flow';
+import { Switch } from '@/components/ui/switch';
 
 type Status = 'idle' | 'loading' | 'active';
 
@@ -27,7 +28,9 @@ export default function Home() {
   const { toast } = useToast();
   
   const [difficulty, setDifficulty] = useState('Medium');
+  const [numQuestions, setNumQuestions] = useState(10);
   const [timerDuration, setTimerDuration] = useState(10);
+  const [isTimerEnabled, setIsTimerEnabled] = useState(true);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -74,7 +77,7 @@ export default function Home() {
     
     setStatus('loading');
     try {
-      const result: QuizGenerationOutput = await generateQuiz({ context, difficulty });
+      const result: QuizGenerationOutput = await generateQuiz({ context, difficulty, numQuestions });
       if (!result || result.length === 0) {
         throw new Error("The AI failed to generate questions.");
       }
@@ -140,7 +143,7 @@ export default function Home() {
           <header className="mb-8 text-center">
             <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
           </header>
-          <QuizClient questions={quizQuestions} timerDuration={timerDuration} />
+          <QuizClient questions={quizQuestions} timerDuration={isTimerEnabled ? timerDuration : 0} />
         </div>
       </main>
     );
@@ -165,7 +168,7 @@ export default function Home() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Settings /> Quiz Options</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="difficulty">Difficulty Level</Label>
                   <Select value={difficulty} onValueChange={setDifficulty}>
@@ -180,17 +183,35 @@ export default function Home() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="timer">Timer</Label>
-                  <Select value={String(timerDuration)} onValueChange={(val) => setTimerDuration(Number(val))}>
-                    <SelectTrigger id="timer">
-                      <SelectValue placeholder="Select timer duration" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10 Minutes</SelectItem>
-                      <SelectItem value="20">20 Minutes</SelectItem>
-                      <SelectItem value="0">No Timer</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="num-questions">Number of Questions</Label>
+                  <Input
+                    id="num-questions"
+                    type="number"
+                    value={numQuestions}
+                    onChange={(e) => setNumQuestions(Math.max(1, Math.min(20, Number(e.target.value))))}
+                    min="1"
+                    max="20"
+                    placeholder="e.g., 10"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="timer-minutes" className={!isTimerEnabled ? "text-muted-foreground" : ""}>Timer (minutes)</Label>
+                    <Switch
+                        id="timer-enabled"
+                        checked={isTimerEnabled}
+                        onCheckedChange={setIsTimerEnabled}
+                    />
+                  </div>
+                  <Input
+                    id="timer-minutes"
+                    type="number"
+                    value={timerDuration}
+                    onChange={(e) => setTimerDuration(Math.max(1, Number(e.target.value)))}
+                    disabled={!isTimerEnabled}
+                    min="1"
+                    placeholder="e.g., 10"
+                  />
                 </div>
               </CardContent>
             </Card>
