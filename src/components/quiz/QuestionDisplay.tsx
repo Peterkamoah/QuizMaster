@@ -73,8 +73,8 @@ export function QuestionDisplay({
           <Button variant="outline" onClick={onPrev} disabled={isFirstQuestion}>
             Previous
           </Button>
-          <Button onClick={onNext} disabled={isLastQuestion}>
-            Next
+          <Button onClick={onNext}>
+            {isLastQuestion ? 'Finish Attempt...' : 'Next'}
           </Button>
         </div>
       </div>

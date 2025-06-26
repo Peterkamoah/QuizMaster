@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import type { Question } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import KatexRenderer from './KatexRenderer';
-
 
 interface ResultsDisplayProps {
   questions: Question[];
@@ -13,6 +15,8 @@ interface ResultsDisplayProps {
 }
 
 export function ResultsDisplay({ questions, answers, timeTaken }: ResultsDisplayProps) {
+  const [showReview, setShowReview] = useState(false);
+
   const correctAnswers = questions.reduce((count, question, index) => {
     return question.correctAnswerIndex === answers[index] ? count + 1 : count;
   }, 0);
@@ -50,51 +54,69 @@ export function ResultsDisplay({ questions, answers, timeTaken }: ResultsDisplay
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Question Review</CardTitle>
-          <CardDescription>Review your answers below.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {questions.map((question, index) => {
-            const userAnswer = answers[index];
-            const isCorrect = question.correctAnswerIndex === userAnswer;
+      {!showReview && (
+        <div className="text-center">
+          <Button onClick={() => setShowReview(true)}>Review Answers & Explanations</Button>
+        </div>
+      )}
 
-            return (
-              <div key={question.id}>
-                <div className="font-semibold text-lg flex items-start">
-                  <span className="mr-2">{index + 1}.</span>
-                  <KatexRenderer content={question.question} />
-                </div>
-                <div className="mt-4 space-y-2 pl-6">
-                  {question.options.map((option, optionIndex) => {
-                    const isUserAnswer = userAnswer === optionIndex;
-                    const isCorrectAnswer = question.correctAnswerIndex === optionIndex;
-                    
-                    return (
-                      <div key={optionIndex} className={cn(
-                          "flex items-center space-x-3 p-3 rounded-md border",
-                          {
-                            'bg-primary/10 border-primary text-primary-foreground': isCorrectAnswer,
-                            'bg-destructive/10 border-destructive text-destructive-foreground': isUserAnswer && !isCorrect,
-                            'bg-card text-card-foreground': !isCorrectAnswer && !(isUserAnswer && !isCorrect)
-                          }
-                      )}>
-                        <div className="w-5 h-5 shrink-0 flex items-center justify-center">
-                            {isCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-primary" />}
-                            {isUserAnswer && !isCorrect && <XCircle className="h-5 w-5 text-destructive" />}
+      {showReview && (
+        <Card className="shadow-lg">
+          <CardHeader>
+            <CardTitle>Question Review</CardTitle>
+            <CardDescription>Review your answers and explanations below.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {questions.map((question, index) => {
+              const userAnswer = answers[index];
+              const isCorrect = question.correctAnswerIndex === userAnswer;
+
+              return (
+                <div key={question.id}>
+                  <div className="font-semibold text-lg flex items-start">
+                    <span className="mr-2">{index + 1}.</span>
+                    <KatexRenderer content={question.question} />
+                  </div>
+                  <div className="mt-4 space-y-2 pl-6">
+                    {question.options.map((option, optionIndex) => {
+                      const isUserAnswer = userAnswer === optionIndex;
+                      const isCorrectAnswer = question.correctAnswerIndex === optionIndex;
+                      
+                      return (
+                        <div key={optionIndex} className={cn(
+                            "flex items-center space-x-3 p-3 rounded-md border",
+                            {
+                              'bg-green-100 dark:bg-green-900/30 border-green-400': isCorrectAnswer,
+                              'bg-red-100 dark:bg-red-900/30 border-red-400': isUserAnswer && !isCorrect,
+                              'bg-card text-card-foreground': !isCorrectAnswer && !(isUserAnswer && !isCorrect)
+                            }
+                        )}>
+                          <div className="w-5 h-5 shrink-0 flex items-center justify-center">
+                              {isCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-green-600" />}
+                              {isUserAnswer && !isCorrect && <XCircle className="h-5 w-5 text-red-600" />}
+                          </div>
+                          <KatexRenderer content={option} className="flex-1"/>
                         </div>
-                        <KatexRenderer content={option} className="flex-1"/>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                  {question.explanation && (
+                    <Accordion type="single" collapsible className="w-full mt-4 pl-6">
+                      <AccordionItem value={`explanation-${index}`}>
+                        <AccordionTrigger>View Explanation</AccordionTrigger>
+                        <AccordionContent className="prose dark:prose-invert max-w-none">
+                          <KatexRenderer content={question.explanation} />
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  )}
+                  {index < questions.length - 1 && <Separator className="mt-6"/>}
                 </div>
-                {index < questions.length - 1 && <Separator className="mt-6"/>}
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

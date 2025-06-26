@@ -10,13 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Loader2, FileText, FileUp } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2, FileText, FileUp, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateQuiz, type QuizGenerationOutput } from '@/ai/flows/quiz-flow';
 
 type Status = 'idle' | 'loading' | 'active';
 
-// Delcare pdfjsLib from CDN
 declare const pdfjsLib: any;
 
 export default function Home() {
@@ -25,6 +25,9 @@ export default function Home() {
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
   const { toast } = useToast();
+  
+  const [difficulty, setDifficulty] = useState('Medium');
+  const [timerDuration, setTimerDuration] = useState(10);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -71,7 +74,7 @@ export default function Home() {
     
     setStatus('loading');
     try {
-      const result: QuizGenerationOutput = await generateQuiz({ context });
+      const result: QuizGenerationOutput = await generateQuiz({ context, difficulty });
       if (!result || result.length === 0) {
         throw new Error("The AI failed to generate questions.");
       }
@@ -80,6 +83,7 @@ export default function Home() {
         question: q.question,
         options: q.options,
         correctAnswerIndex: q.answer,
+        explanation: q.explanation,
       }));
       setQuizQuestions(formattedQuestions);
       setStatus('active');
@@ -136,7 +140,7 @@ export default function Home() {
           <header className="mb-8 text-center">
             <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
           </header>
-          <QuizClient questions={quizQuestions} />
+          <QuizClient questions={quizQuestions} timerDuration={timerDuration} />
         </div>
       </main>
     );
@@ -156,38 +160,74 @@ export default function Home() {
             <p className="text-lg font-semibold text-muted-foreground">Brewing your questions...</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="shadow-lg">
+          <>
+            <Card className="mb-8 shadow-lg">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><FileText /> From Text</CardTitle>
-                <CardDescription>Paste your content below.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><Settings /> Quiz Options</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Textarea 
-                  placeholder="Paste your notes, article, or any text here..." 
-                  className="h-48 resize-none"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                />
-                <Button className="w-full" onClick={handleGenerateFromText}>Generate Quiz</Button>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="difficulty">Difficulty Level</Label>
+                  <Select value={difficulty} onValueChange={setDifficulty}>
+                    <SelectTrigger id="difficulty">
+                      <SelectValue placeholder="Select difficulty" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Easy">Easy</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="timer">Timer</Label>
+                  <Select value={String(timerDuration)} onValueChange={(val) => setTimerDuration(Number(val))}>
+                    <SelectTrigger id="timer">
+                      <SelectValue placeholder="Select timer duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10 Minutes</SelectItem>
+                      <SelectItem value="20">20 Minutes</SelectItem>
+                      <SelectItem value="0">No Timer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><FileUp /> From PDF</CardTitle>
-                <CardDescription>Upload a PDF document.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="pdf-upload">PDF File</Label>
-                    <Input id="pdf-upload" type="file" accept=".pdf" onChange={handleFileChange} />
-                </div>
-                 {pdfFile && <p className="text-sm text-muted-foreground">Selected: {pdfFile.name}</p>}
-                <Button className="w-full" onClick={handleGenerateFromPdf} disabled={!pdfFile}>Generate Quiz from PDF</Button>
-              </CardContent>
-            </Card>
-          </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><FileText /> From Text</CardTitle>
+                  <CardDescription>Paste your content below.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Textarea
+                    placeholder="Paste your notes, article, or any text here..."
+                    className="h-48 resize-none"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                  />
+                  <Button className="w-full" onClick={handleGenerateFromText}>Generate Quiz</Button>
+                </CardContent>
+              </Card>
+
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><FileUp /> From PDF</CardTitle>
+                  <CardDescription>Upload a PDF document.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                      <Label htmlFor="pdf-upload">PDF File</Label>
+                      <Input id="pdf-upload" type="file" accept=".pdf" onChange={handleFileChange} />
+                  </div>
+                   {pdfFile && <p className="text-sm text-muted-foreground">Selected: {pdfFile.name}</p>}
+                  <Button className="w-full" onClick={handleGenerateFromPdf} disabled={!pdfFile}>Generate Quiz from PDF</Button>
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )}
         
         <Separator className="my-8" />
