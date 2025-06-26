@@ -2,8 +2,9 @@
 
 import React, { useEffect, useRef } from 'react';
 
-// Declare renderMathInElement from the KaTeX auto-render extension
+// Declare renderMathInElement and katex from the KaTeX library
 declare const renderMathInElement: any;
+declare const katex: any;
 
 interface KatexRendererProps {
   content: string;
@@ -14,10 +15,13 @@ const KatexRenderer: React.FC<KatexRendererProps> = ({ content, className }) => 
   const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // Check if the container exists and the KaTeX auto-render script is loaded
-    if (containerRef.current && typeof renderMathInElement !== 'undefined') {
+    // A more robust check to ensure both the core KaTeX library and the auto-render extension are loaded.
+    const katexIsReady = containerRef.current && 
+                         typeof renderMathInElement !== 'undefined' &&
+                         typeof katex !== 'undefined';
+                         
+    if (katexIsReady) {
       try {
-        // This function will find and render all math in the container element
         renderMathInElement(containerRef.current, {
           delimiters: [
             { left: '$$', right: '$$', display: true },
@@ -25,13 +29,14 @@ const KatexRenderer: React.FC<KatexRendererProps> = ({ content, className }) => 
             { left: '\\(', right: '\\)', display: false },
             { left: '\\[', right: '\\]', display: true }
           ],
-          throwOnError: false, // Don't throw errors on invalid math
+          throwOnError: false, 
         });
       } catch (error) {
+        // This catch block is a fallback in case an error still occurs.
         console.error("KaTeX auto-rendering failed:", error);
       }
     }
-  }, [content]); // Re-run the effect if the content prop changes
+  }, [content]);
 
   // We render the raw content into a span with a ref.
   // The useEffect hook will then process this span to render the math.
