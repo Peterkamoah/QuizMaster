@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Declare KaTeX from CDN
 declare const katex: any;
@@ -11,53 +11,43 @@ interface KatexRendererProps {
 }
 
 const KatexRenderer: React.FC<KatexRendererProps> = ({ content, className }) => {
-  const [isClient, setIsClient] = useState(false);
+  // We use state to store the rendered HTML. Initially, it's the raw content.
+  // This ensures the server-rendered output and the initial client render match.
+  const [renderedHtml, setRenderedHtml] = useState(content);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const renderedHtml = useMemo(() => {
-    if (!isClient || typeof katex === 'undefined' || !content) {
-      // Return plain text on server, before katex is loaded, or if content is empty
-      return content;
-    }
-
-    try {
-      // Regex to find KaTeX delimiters ($...$ for inline, $$...$$ for block)
-      const regex = /(\$\$[\s\S]*?\$\$|\$.*?\$)/g;
-      const parts = content.split(regex);
-
-      return parts
-        .map((part, index) => {
-          if (index % 2 === 1) { // Every odd part is a math expression
-            const isBlock = part.startsWith('$$');
-            const math = part.substring(isBlock ? 2 : 1, part.length - (isBlock ? 2 : 1));
-            try {
-              return katex.renderToString(math, {
-                throwOnError: false,
-                displayMode: isBlock,
-              });
-            } catch (error) {
-              console.error("KaTeX rendering error for part:", part, error);
-              return part; // Fallback to original math string on error
-            }
+    // This effect runs only on the client, after the component has mounted.
+    // By this time, the KaTeX script should be loaded.
+    if (typeof katex !== 'undefined' && content) {
+      try {
+        // Regex to find KaTeX delimiters ($...$ for inline, $$...$$ for block)
+        // We replace each found delimiter with its HTML-rendered version.
+        const html = content.replace(/(\$\$[\s\S]*?\$\$|\$.*?\$)/g, (match) => {
+          const isBlock = match.startsWith('$$');
+          const math = match.substring(isBlock ? 2 : 1, match.length - (isBlock ? 2 : 1));
+          try {
+            return katex.renderToString(math, {
+              throwOnError: false,
+              displayMode: isBlock,
+            });
+          } catch (error) {
+            console.error("KaTeX rendering error for part:", match, error);
+            return match; // Fallback to original math string on error
           }
-          return part; // Even parts are regular text
-        })
-        .join('');
-    } catch (error) {
-      console.error("KaTeX processing error:", error);
-      return content; // Fallback to original content on major error
+        });
+        setRenderedHtml(html);
+      } catch (error) {
+        console.error("KaTeX processing error:", error);
+        setRenderedHtml(content); // Fallback to original content on major error
+      }
+    } else {
+      // If katex is not available or content is empty, ensure we display the raw content.
+      setRenderedHtml(content);
     }
-  }, [content, isClient]);
-  
-  // Render a placeholder on the server and initial client render
-  if (!isClient) {
-    return <span className={className}>{content}</span>;
-  }
-  
-  return <span className={className} dangerouslySetInnerHTML={{ __html: renderedHtml }} />;
+  }, [content]);
+
+  // The key forces a re-mount when content changes, which is useful for dangerouslySetInnerHTML
+  return <span key={content} className={className} dangerouslySetInnerHTML={{ __html: renderedHtml }} />;
 };
 
 export default KatexRenderer;
