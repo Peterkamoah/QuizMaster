@@ -64,7 +64,7 @@ export default function Home() {
 
   if (status === 'active') {
     return (
-      <main className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
           <header className="mb-8 flex justify-between items-center">
             <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
@@ -76,12 +76,12 @@ export default function Home() {
             onReturnHome={handleReturnHome}
           />
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="h-full flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
         <header className="mb-8">
           <div className="flex justify-between items-center">
@@ -107,6 +107,6 @@ export default function Home() {
           />
         )}
       </div>
-    </main>
+    </div>
   );
 }

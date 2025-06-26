@@ -29,7 +29,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="flex flex-col min-h-screen bg-background">
+            <main className="flex-grow">{children}</main>
+            <footer className="py-4 text-center text-sm text-muted-foreground">
+              Copyright © {new Date().getFullYear()} Your Name Here. All Rights Reserved.
+            </footer>
+          </div>
           <Toaster />
 
           {/* Client-side libraries loaded via Next.js Script component for proper ordering and execution */}
