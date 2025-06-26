@@ -6,8 +6,37 @@ import 'katex/dist/katex.min.css';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'QuizMaster',
-  description: 'A modern online examination portal',
+  title: {
+    default: "QuizMaster",
+    template: `%s | QuizMaster`,
+  },
+  description: 'A modern, AI-powered quiz application to generate quizzes from text or PDFs. Perfect for students and educators.',
+  openGraph: {
+    title: 'QuizMaster',
+    description: 'A modern, AI-powered quiz application to generate quizzes from text or PDFs.',
+    url: 'https://quiz-master-zeta-teal.vercel.app',
+    siteName: 'QuizMaster',
+    images: [
+      {
+        url: 'https://placehold.co/1200x630.png',
+        width: 1200,
+        height: 630,
+        alt: 'QuizMaster App Preview',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'QuizMaster',
+    description: 'A modern, AI-powered quiz application to generate quizzes from text or PDFs.',
+    images: ['https://placehold.co/1200x630.png'],
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B1120' },
+  ],
 };
 
 export default function RootLayout({
