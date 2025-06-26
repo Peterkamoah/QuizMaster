@@ -1,11 +1,11 @@
+
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, forwardRef } from 'react';
 import type { Question } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Separator } from '@/components/ui/separator';
 import { CheckCircle2, XCircle, ArrowLeft, ArrowRight, Download, Loader2 } from 'lucide-react';
 import KatexRenderer from './KatexRenderer';
 import { cn } from '@/lib/utils';
@@ -20,13 +20,64 @@ interface QuizReviewProps {
     onReturnHome: () => void;
 }
 
+// This component renders the full quiz review content for PDF generation.
+// It is defined outside the main component to prevent it from being recreated on every render.
+const FullReviewForPdf = forwardRef<
+    HTMLDivElement,
+    { questions: Question[]; answers: (number | null)[]; score: number }
+>(({ questions, answers, score }, ref) => (
+    <div ref={ref} className="bg-background p-8" style={{ width: '1200px' }}>
+        <h1 className="text-4xl font-bold text-center mb-4">Quiz Review</h1>
+        <h2 className="text-2xl font-bold text-center mb-8">Final Score: {score}%</h2>
+        {questions.map((question, index) => (
+            <Card key={question.id} className="mb-6 break-inside-avoid">
+                <CardHeader>
+                    <CardTitle className="text-lg flex items-start gap-2">
+                        <span>{index + 1}.</span> <KatexRenderer content={question.question} />
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        {question.options.map((option, optionIndex) => {
+                            const isThisUserAnswer = answers[index] === optionIndex;
+                            const isThisCorrectAnswer = question.correctAnswerIndex === optionIndex;
+                            return (
+                                <div key={optionIndex} className={cn(
+                                    "flex items-start space-x-3 p-3 rounded-md border text-left",
+                                    isThisCorrectAnswer && 'bg-green-100 dark:bg-green-900/30 border-green-400',
+                                    isThisUserAnswer && !isThisCorrectAnswer && 'bg-red-100 dark:bg-red-900/30 border-red-400'
+                                )}>
+                                    <div className="w-5 h-5 shrink-0 flex items-center justify-center mt-1">
+                                        {isThisCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-green-600" />}
+                                        {isThisUserAnswer && !isThisCorrectAnswer && <XCircle className="h-5 w-5 text-red-600" />}
+                                    </div>
+                                    <KatexRenderer content={option} className="flex-1"/>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {question.explanation && (
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-semibold mb-2">Explanation</h4>
+                            <div className="prose dark:prose-invert max-w-none text-sm">
+                                <KatexRenderer content={question.explanation} />
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        ))}
+    </div>
+));
+FullReviewForPdf.displayName = 'FullReviewForPdf';
+
+
 export function QuizReview({ questions, answers, score, onReturnHome }: QuizReviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isDownloading, setIsDownloading] = useState(false);
     const downloadContainerRef = useRef<HTMLDivElement>(null);
     const currentQuestion = questions[currentIndex];
     const userAnswer = answers[currentIndex];
-    const isCorrect = currentQuestion.correctAnswerIndex === userAnswer;
 
     const handleDownloadPdf = async () => {
         const element = downloadContainerRef.current;
@@ -60,51 +111,6 @@ export function QuizReview({ questions, answers, score, onReturnHome }: QuizRevi
         pdf.save(`quiz-review-score-${score}%.pdf`);
         setIsDownloading(false);
     };
-
-    const FullReviewForPdf = () => (
-        <div ref={downloadContainerRef} className="bg-background p-8" style={{ width: '1200px' }}>
-            <h1 className="text-4xl font-bold text-center mb-4">Quiz Review</h1>
-            <h2 className="text-2xl font-bold text-center mb-8">Final Score: {score}%</h2>
-            {questions.map((question, index) => (
-                 <Card key={question.id} className="mb-6 break-inside-avoid">
-                    <CardHeader>
-                        <CardTitle className="text-lg flex items-start gap-2">
-                           <span>{index + 1}.</span> <KatexRenderer content={question.question} />
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            {question.options.map((option, optionIndex) => {
-                                const isThisUserAnswer = answers[index] === optionIndex;
-                                const isThisCorrectAnswer = question.correctAnswerIndex === optionIndex;
-                                return (
-                                <div key={optionIndex} className={cn(
-                                    "flex items-start space-x-3 p-3 rounded-md border text-left",
-                                    isThisCorrectAnswer && 'bg-green-100 dark:bg-green-900/30 border-green-400',
-                                    isThisUserAnswer && !isThisCorrectAnswer && 'bg-red-100 dark:bg-red-900/30 border-red-400'
-                                )}>
-                                    <div className="w-5 h-5 shrink-0 flex items-center justify-center mt-1">
-                                    {isThisCorrectAnswer && <CheckCircle2 className="h-5 w-5 text-green-600" />}
-                                    {isThisUserAnswer && !isThisCorrectAnswer && <XCircle className="h-5 w-5 text-red-600" />}
-                                    </div>
-                                    <KatexRenderer content={option} className="flex-1"/>
-                                </div>
-                                );
-                            })}
-                        </div>
-                        {question.explanation && (
-                             <div className="p-4 bg-muted/50 rounded-lg">
-                                 <h4 className="font-semibold mb-2">Explanation</h4>
-                                <div className="prose dark:prose-invert max-w-none text-sm">
-                                    <KatexRenderer content={question.explanation} />
-                                </div>
-                             </div>
-                        )}
-                    </CardContent>
-                </Card>
-            ))}
-        </div>
-    );
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -174,7 +180,12 @@ export function QuizReview({ questions, answers, score, onReturnHome }: QuizRevi
             </Card>
             
             <div className="absolute -left-[9999px] top-0 opacity-0" aria-hidden="true">
-                <FullReviewForPdf />
+                <FullReviewForPdf
+                    ref={downloadContainerRef}
+                    questions={questions}
+                    answers={answers}
+                    score={score}
+                />
             </div>
         </div>
     )
