@@ -18,30 +18,37 @@ const KatexRenderer: React.FC<KatexRendererProps> = ({ content, className }) => 
   }, []);
 
   const renderedHtml = useMemo(() => {
-    if (!isClient || typeof katex === 'undefined') {
-      // Return plain text on server or before katex is loaded
+    if (!isClient || typeof katex === 'undefined' || !content) {
+      // Return plain text on server, before katex is loaded, or if content is empty
       return content;
     }
 
     try {
-      // Regex to find KaTeX delimiters
-      const regex = /(\$\$[\s\S]*?\$\$|\$.*?[^`\s]\$)/g;
+      // Regex to find KaTeX delimiters ($...$ for inline, $$...$$ for block)
+      const regex = /(\$\$[\s\S]*?\$\$|\$.*?\$)/g;
       const parts = content.split(regex);
 
-      return parts.map((part, index) => {
-        if (part.match(regex)) {
-          const isBlock = part.startsWith('$$');
-          const math = part.substring(isBlock ? 2 : 1, part.length - (isBlock ? 2 : 1));
-          return katex.renderToString(math, {
-            throwOnError: false,
-            displayMode: isBlock,
-          });
-        }
-        return part;
-      }).join('');
+      return parts
+        .map((part, index) => {
+          if (index % 2 === 1) { // Every odd part is a math expression
+            const isBlock = part.startsWith('$$');
+            const math = part.substring(isBlock ? 2 : 1, part.length - (isBlock ? 2 : 1));
+            try {
+              return katex.renderToString(math, {
+                throwOnError: false,
+                displayMode: isBlock,
+              });
+            } catch (error) {
+              console.error("KaTeX rendering error for part:", part, error);
+              return part; // Fallback to original math string on error
+            }
+          }
+          return part; // Even parts are regular text
+        })
+        .join('');
     } catch (error) {
-      console.error("KaTeX rendering error:", error);
-      return content; // Fallback to original content on error
+      console.error("KaTeX processing error:", error);
+      return content; // Fallback to original content on major error
     }
   }, [content, isClient]);
   
