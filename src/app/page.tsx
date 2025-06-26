@@ -15,6 +15,7 @@ import { Loader2, FileText, FileUp, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateQuiz, type QuizGenerationOutput } from '@/ai/flows/quiz-flow';
 import { Switch } from '@/components/ui/switch';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 type Status = 'idle' | 'loading' | 'active';
 
@@ -145,8 +146,9 @@ export default function Home() {
     return (
       <main className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto">
-          <header className="mb-8 text-center">
+          <header className="mb-8 flex justify-between items-center">
             <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
+             <ThemeToggle />
           </header>
           <QuizClient 
             questions={quizQuestions} 
@@ -161,9 +163,15 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-4xl">
-        <header className="mb-8 text-center">
-          <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
-          <p className="text-muted-foreground mt-2">Generate a custom quiz from your study materials.</p>
+        <header className="mb-8">
+          <div className="flex justify-between items-center">
+            <div />
+            <div className="text-center">
+                <h1 className="text-4xl font-headline font-bold text-primary">QuizMaster</h1>
+                <p className="text-muted-foreground mt-2">Generate a custom quiz from your study materials.</p>
+            </div>
+            <ThemeToggle />
+          </div>
         </header>
 
         {status === 'loading' ? (

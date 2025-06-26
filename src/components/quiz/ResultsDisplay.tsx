@@ -52,7 +52,7 @@ export function ResultsDisplay({ questions, answers, timeTaken, onReturnHome }: 
               <p className="text-sm text-muted-foreground">Final Score</p>
             </div>
             <div className="p-4 bg-muted rounded-lg">
-              <p className="text-3xl font-bold text-green-600">{correctAnswers}</p>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-500">{correctAnswers}</p>
               <p className="text-sm text-muted-foreground">Correct</p>
             </div>
             <div className="p-4 bg-muted rounded-lg">

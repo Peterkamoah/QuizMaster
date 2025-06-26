@@ -49,7 +49,7 @@ export function QuizNavPanel({
                 isVisited && !isAnswered && 'border-muted-foreground',
                 
                 // Answered state
-                isAnswered && 'bg-green-600 border-green-700 text-white hover:bg-green-700 hover:text-white',
+                isAnswered && 'bg-green-600 dark:bg-green-700 border-green-700 text-white hover:bg-green-700 hover:text-white',
 
                 // Current question state (overrides others except flag)
                 isCurrent && 'ring-2 ring-primary ring-offset-background border-primary'
