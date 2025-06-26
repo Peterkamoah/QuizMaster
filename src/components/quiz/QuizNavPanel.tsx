@@ -38,21 +38,16 @@ export function QuizNavPanel({
             <Button
               key={index}
               size="icon"
-              variant="outline"
               onClick={() => onSelectQuestion(index)}
               className={cn(
                 'h-10 w-10 transition-all duration-200 font-bold relative',
-                // Default state
-                'bg-background hover:bg-muted',
-                
-                // Visited but unanswered
-                isVisited && !isAnswered && 'border-muted-foreground',
-                
-                // Answered state
-                isAnswered && 'bg-green-600 dark:bg-green-700 border-green-700 text-white hover:bg-green-700 hover:text-white',
-
-                // Current question state (overrides others except flag)
-                isCurrent && 'ring-2 ring-primary ring-offset-background border-primary'
+                isCurrent
+                  ? 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
+                  : isAnswered
+                  ? 'bg-green-600 dark:bg-green-700 border-green-700 text-white hover:bg-green-700/90'
+                  : isVisited
+                  ? 'bg-card text-card-foreground border border-muted-foreground hover:bg-muted'
+                  : 'bg-card text-card-foreground border hover:bg-muted'
               )}
             >
               {index + 1}

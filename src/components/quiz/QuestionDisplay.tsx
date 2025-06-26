@@ -61,17 +61,14 @@ export function QuestionDisplay({
 
       <div className="flex justify-between items-center flex-wrap gap-4">
         <Button
-          variant={isFlagged ? "default" : "outline"}
+          variant={isFlagged ? "default" : "secondary"}
           onClick={onFlag}
-          className={cn({
-            "bg-accent hover:bg-accent/90 text-accent-foreground": isFlagged
-          })}
         >
           <Flag className="mr-2 h-4 w-4" />
           {isFlagged ? 'Flagged' : 'Flag for Review'}
         </Button>
         <div className="flex space-x-4">
-          <Button variant="outline" onClick={onPrev} disabled={isFirstQuestion}>
+          <Button variant="secondary" onClick={onPrev} disabled={isFirstQuestion}>
             Previous
           </Button>
           <Button onClick={onNext}>
