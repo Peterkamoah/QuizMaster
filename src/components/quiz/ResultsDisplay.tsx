@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Question } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { CheckCircle2, Clock, BarChart } from 'lucide-react';
+import { Clock, BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QuizReview } from './QuizReview';
 
@@ -31,6 +31,7 @@ export function ResultsDisplay({ questions, answers, timeTaken, onReturnHome }: 
             answers={answers}
             score={Number(score)}
             onReturnHome={onReturnHome}
+            onReturnToSummary={() => setShowReview(false)}
         />
     )
   }

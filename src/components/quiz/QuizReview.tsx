@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, forwardRef } from 'react';
+import { useState, useRef } from 'react';
 import type { Question } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,9 +17,10 @@ interface QuizReviewProps {
     answers: (number | null)[];
     score: number;
     onReturnHome: () => void;
+    onReturnToSummary: () => void;
 }
 
-export function QuizReview({ questions, answers, score, onReturnHome }: QuizReviewProps) {
+export function QuizReview({ questions, answers, score, onReturnHome, onReturnToSummary }: QuizReviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isDownloading, setIsDownloading] = useState(false);
     const downloadContainerRef = useRef<HTMLDivElement>(null);
@@ -37,23 +38,19 @@ export function QuizReview({ questions, answers, score, onReturnHome }: QuizRevi
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
-            <Card className="shadow-md">
+            <Card className="shadow-md sticky top-4 z-10">
                 <CardHeader className="flex-row items-center justify-between">
                     <CardTitle>Question Review</CardTitle>
                     <div className="text-lg font-bold text-primary">Score: {score}%</div>
                 </CardHeader>
                 <CardContent className="flex items-center justify-between flex-wrap gap-2">
-                    <div className="flex gap-2">
-                         <Button variant="outline" onClick={() => setCurrentIndex(i => i - 1)} disabled={currentIndex === 0}>
-                            <ArrowLeft /> Previous
-                        </Button>
-                        <Button variant="outline" onClick={() => setCurrentIndex(i => i + 1)} disabled={currentIndex === questions.length - 1}>
-                            Next <ArrowRight />
-                        </Button>
-                    </div>
+                     <Button variant="outline" onClick={onReturnToSummary}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Summary
+                    </Button>
                     <Button onClick={handleDownloadPdf} disabled={isDownloading}>
-                        {isDownloading ? <Loader2 className="animate-spin" /> : <Download />}
-                        Download as PDF
+                        {isDownloading ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : <Download className="mr-2 h-4 w-4" />}
+                        Download Review
                     </Button>
                 </CardContent>
             </Card>
@@ -95,9 +92,17 @@ export function QuizReview({ questions, answers, score, onReturnHome }: QuizRevi
                         </Accordion>
                     )}
                 </CardContent>
-                <CardFooter>
-                    {currentIndex === questions.length - 1 && (
-                        <Button onClick={onReturnHome} className="w-full" size="lg">Finish Review & Return Home</Button>
+                <CardFooter className="flex justify-between">
+                    <Button variant="outline" onClick={() => setCurrentIndex(i => i - 1)} disabled={currentIndex === 0}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Previous
+                    </Button>
+                    
+                    {currentIndex === questions.length - 1 ? (
+                        <Button onClick={onReturnHome} size="lg">Finish & Go Home</Button>
+                    ) : (
+                         <Button onClick={() => setCurrentIndex(i => i + 1)}>
+                            Next <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
                     )}
                 </CardFooter>
             </Card>
