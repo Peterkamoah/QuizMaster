@@ -73,9 +73,8 @@ export function QuizClient({ questions }: QuizClientProps) {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <div className="lg:col-span-3">
           <Card className="shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader>
               <CardTitle>Question {currentQuestionIndex + 1} of {questions.length}</CardTitle>
-              <Timer durationInMinutes={QUIZ_DURATION_MINUTES} onTimeUp={handleTimeUp} />
             </CardHeader>
             <CardContent>
               <QuestionDisplay
@@ -92,7 +91,15 @@ export function QuizClient({ questions }: QuizClientProps) {
             </CardContent>
           </Card>
         </div>
-        <div className="lg:col-span-1">
+        <div className="lg:col-span-1 space-y-6">
+           <Card className="shadow-md">
+              <CardHeader>
+                <CardTitle className="text-center text-lg">Time Remaining</CardTitle>
+              </CardHeader>
+              <CardContent className="flex justify-center">
+                <Timer durationInMinutes={QUIZ_DURATION_MINUTES} onTimeUp={handleTimeUp} />
+              </CardContent>
+           </Card>
           <QuizNavPanel
             totalQuestions={questions.length}
             answers={answers}

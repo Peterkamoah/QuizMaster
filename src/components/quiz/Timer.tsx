@@ -12,6 +12,7 @@ export function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
+    // Set initial time on client-side to avoid hydration mismatch
     setTimeLeft(durationInMinutes * 60);
   }, [durationInMinutes]);
 
@@ -30,7 +31,12 @@ export function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
   }, [timeLeft, onTimeUp]);
   
   if (timeLeft === null) {
-    return <div className="flex items-center space-x-2 font-medium">Loading...</div>;
+    return (
+        <div className="flex items-center space-x-2 text-muted-foreground">
+            <Clock className="h-7 w-7" />
+            <span className="text-3xl font-bold font-mono tracking-widest">--:--</span>
+        </div>
+    );
   }
 
   const minutes = Math.floor(timeLeft / 60);
@@ -39,10 +45,10 @@ export function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
   const timeColorClass = timeLeft < 60 ? 'text-destructive' : 'text-foreground';
 
   return (
-    <div className={`flex items-center space-x-2 font-medium ${timeColorClass} transition-colors`}>
-      <Clock className="h-5 w-5" />
-      <span>
-        Time left: {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+    <div className={`flex items-center space-x-2 ${timeColorClass} transition-colors`}>
+      <Clock className="h-7 w-7" />
+      <span className="text-3xl font-bold font-mono tracking-widest">
+        {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
       </span>
     </div>
   );
