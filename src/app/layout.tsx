@@ -63,12 +63,12 @@ export default function RootLayout({
             <footer className="py-4 text-center text-sm text-muted-foreground">
               Copyright © {new Date().getFullYear()}{' '}
               <a
-                href="https://github.com/peterkamoah"
+                href="https://peter-s-digital-stage-portfolio.vercel.app/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:underline"
               >
-                Peter Amoah Mensah
+                PAM
               </a>
               . All Rights Reserved.
             </footer>

@@ -145,10 +145,10 @@ This project is distributed under the MIT License. See the `LICENSE` file for mo
 
 ## ©️ Copyright
 
-Copyright (c) 2024 Peter Amoah Mensah
+Copyright (c) 2024 [PAM](https://peter-s-digital-stage-portfolio.vercel.app/)
 
 ## 📫 Contact
 
-Peter Amoah Mensah - [@peterkamoah](https://github.com/peterkamoah)
+Peter Amoah Mensah - [Portfolio](https://peter-s-digital-stage-portfolio.vercel.app/) | [@peterkamoah](https://github.com/peterkamoah)
 
 Project Link: [https://github.com/peterkamoah/quizmaster](https://github.com/peterkamoah/quizmaster)
