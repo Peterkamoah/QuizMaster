@@ -1,9 +1,9 @@
 # QuizMaster: The AI-Powered Quiz Platform
 
-[![Build Status](https://img.shields.io/travis/com/your-username/quizmaster.svg?style=flat-square)](https://travis-ci.com/your-username/quizmaster)
-[![Code Coverage](https://img.shields.io/coveralls/github/your-username/quizmaster.svg?style=flat-square)](https://coveralls.io/github/your-username/quizmaster)
+[![Build Status](https://img.shields.io/travis/com/peterkamoah/quizmaster.svg?style=flat-square)](https://travis-ci.com/peterkamoah/quizmaster)
+[![Code Coverage](https://img.shields.io/coveralls/github/peterkamoah/quizmaster.svg?style=flat-square)](https://coveralls.io/github/peterkamoah/quizmaster)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Contributors](https://img.shields.io/github/contributors/your-username/quizmaster.svg?style=flat-square)](https://github.com/your-username/quizmaster/graphs/contributors)
+[![Contributors](https://img.shields.io/github/contributors/peterkamoah/quizmaster.svg?style=flat-square)](https://github.com/peterkamoah/quizmaster/graphs/contributors)
 
 ## 📜 Project Overview
 
@@ -66,7 +66,7 @@ Follow these instructions to get the project set up and running on your local ma
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/quizmaster.git
+    git clone https://github.com/peterkamoah/quizmaster.git
     cd quizmaster
     ```
 
@@ -145,10 +145,10 @@ This project is distributed under the MIT License. See the `LICENSE` file for mo
 
 ## ©️ Copyright
 
-Copyright (c) 2024 [Your Name/Your Company Name]
+Copyright (c) 2024 Peter Amoah Mensah
 
 ## 📫 Contact
 
-[Your Name] - [@your_twitter_handle](https://twitter.com/your_twitter_handle) - email@example.com
+Peter Amoah Mensah - [@peterkamoah](https://github.com/peterkamoah)
 
-Project Link: [https://github.com/your-username/quizmaster](https://github.com/your-username/quizmaster)
+Project Link: [https://github.com/peterkamoah/quizmaster](https://github.com/peterkamoah/quizmaster)
