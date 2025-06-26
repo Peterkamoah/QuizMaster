@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-// Declare KaTeX from CDN
-declare const katex: any;
+// Declare renderMathInElement from the KaTeX auto-render extension
+declare const renderMathInElement: any;
 
 interface KatexRendererProps {
   content: string;
@@ -11,43 +11,35 @@ interface KatexRendererProps {
 }
 
 const KatexRenderer: React.FC<KatexRendererProps> = ({ content, className }) => {
-  // We use state to store the rendered HTML. Initially, it's the raw content.
-  // This ensures the server-rendered output and the initial client render match.
-  const [renderedHtml, setRenderedHtml] = useState(content);
+  const containerRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // This effect runs only on the client, after the component has mounted.
-    // By this time, the KaTeX script should be loaded.
-    if (typeof katex !== 'undefined' && content) {
+    // Check if the container exists and the KaTeX auto-render script is loaded
+    if (containerRef.current && typeof renderMathInElement !== 'undefined') {
       try {
-        // Regex to find KaTeX delimiters ($...$ for inline, $$...$$ for block)
-        // We replace each found delimiter with its HTML-rendered version.
-        const html = content.replace(/(\$\$[\s\S]*?\$\$|\$.*?\$)/g, (match) => {
-          const isBlock = match.startsWith('$$');
-          const math = match.substring(isBlock ? 2 : 1, match.length - (isBlock ? 2 : 1));
-          try {
-            return katex.renderToString(math, {
-              throwOnError: false,
-              displayMode: isBlock,
-            });
-          } catch (error) {
-            console.error("KaTeX rendering error for part:", match, error);
-            return match; // Fallback to original math string on error
-          }
+        // This function will find and render all math in the container element
+        renderMathInElement(containerRef.current, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
+          ],
+          throwOnError: false, // Don't throw errors on invalid math
         });
-        setRenderedHtml(html);
       } catch (error) {
-        console.error("KaTeX processing error:", error);
-        setRenderedHtml(content); // Fallback to original content on major error
+        console.error("KaTeX auto-rendering failed:", error);
       }
-    } else {
-      // If katex is not available or content is empty, ensure we display the raw content.
-      setRenderedHtml(content);
     }
-  }, [content]);
+  }, [content]); // Re-run the effect if the content prop changes
 
-  // The key forces a re-mount when content changes, which is useful for dangerouslySetInnerHTML
-  return <span key={content} className={className} dangerouslySetInnerHTML={{ __html: renderedHtml }} />;
+  // We render the raw content into a span with a ref.
+  // The useEffect hook will then process this span to render the math.
+  return (
+    <span ref={containerRef} className={className}>
+      {content}
+    </span>
+  );
 };
 
 export default KatexRenderer;
