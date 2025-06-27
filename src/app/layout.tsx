@@ -18,10 +18,8 @@ export const metadata: Metadata = {
     siteName: 'QuizMaster',
     images: [
       {
-        url: 'https://placehold.co/1200x630.png',
-        width: 1200,
-        height: 630,
-        alt: 'QuizMaster App Preview',
+        url: '/favicon.ico',
+        alt: 'QuizMaster Logo',
       },
     ],
     locale: 'en_US',
@@ -31,7 +29,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'QuizMaster',
     description: 'A modern, AI-powered quiz application to generate quizzes from text or PDFs.',
-    images: ['https://placehold.co/1200x630.png'],
+    images: ['/favicon.ico'],
   },
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
