@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     siteName: 'QuizMaster',
     images: [
       {
-        url: '/favicon.ico',
+        url: '/og-image.png',
         alt: 'QuizMaster Logo',
       },
     ],
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'QuizMaster',
     description: 'A modern, AI-powered quiz application to generate quizzes from text or PDFs.',
-    images: ['/favicon.ico'],
+    images: ['/og-image.png'],
   },
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'white' },
