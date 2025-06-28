@@ -96,4 +96,4 @@ Once the application is running, you can start creating quizzes right away:
 
 ## ©️ Copyright
 
-Copyright (c) 2024 [PAM](https://peter-s-digital-stage-portfolio.vercel.app/)
+Copyright (c) 2024 [Peter Amoah Mensah](https://peter-s-digital-stage-portfolio.vercel.app/)

@@ -66,7 +66,7 @@ export default function RootLayout({
                 rel="noopener noreferrer"
                 className="hover:underline"
               >
-                PAM
+                Peter Amoah Mensah
               </a>
               . All Rights Reserved.
             </footer>
