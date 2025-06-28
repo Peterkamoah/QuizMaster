@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useCallback, useEffect } from 'react';
@@ -129,7 +130,7 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
            {timerDuration > 0 && (
              <div className="md:hidden sticky top-4 z-20">
                 {isTimerVisible ? (
-                    <Card className={cn("shadow-lg transition-colors", isTimeCritical && "bg-destructive/10 border-destructive")}>
+                    <Card className={cn("shadow-lg transition-colors backdrop-blur-md bg-card/60", isTimeCritical && "bg-destructive/20 border-destructive")}>
                         <CardHeader className="flex-row items-center justify-between p-3">
                             <CardTitle className="text-lg">Time Remaining</CardTitle>
                             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsTimerVisible(false)}>
