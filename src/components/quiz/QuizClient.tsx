@@ -128,26 +128,34 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
         <div className="md:col-span-3 space-y-6">
            {/* Mobile-only Timer with sticky and hide/show functionality */}
            {timerDuration > 0 && (
-             <div className="sticky top-4 z-20 md:hidden">
+             <>
                 {isTimerVisible ? (
-                    <Card className={cn("shadow-lg transition-colors backdrop-blur-md bg-card/60", isTimeCritical && "bg-destructive/20 border-destructive")}>
-                        <CardHeader className="flex-row items-center justify-between p-3">
-                            <CardTitle className="text-lg">Time Remaining</CardTitle>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsTimerVisible(false)}>
-                                <EyeOff className="h-4 w-4" />
-                                <span className="sr-only">Hide Timer</span>
-                            </Button>
-                        </CardHeader>
-                        <CardContent className="flex justify-center p-4 pt-0">
-                            <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} onTick={setTimeLeft} />
-                        </CardContent>
-                    </Card>
+                    <div className="sticky top-4 z-20 md:hidden">
+                        <Card className={cn("shadow-lg transition-colors backdrop-blur-md bg-card/60", isTimeCritical && "bg-destructive/20 border-destructive")}>
+                            <CardHeader className="flex-row items-center justify-between p-3">
+                                <CardTitle className="text-lg">Time Remaining</CardTitle>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsTimerVisible(false)}>
+                                    <EyeOff className="h-4 w-4" />
+                                    <span className="sr-only">Hide Timer</span>
+                                </Button>
+                            </CardHeader>
+                            <CardContent className="flex justify-center p-4 pt-0">
+                                <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} onTick={setTimeLeft} />
+                            </CardContent>
+                        </Card>
+                    </div>
                 ) : (
-                    <Button onClick={() => setIsTimerVisible(true)} className="w-full">
-                        <Clock className="mr-2 h-4 w-4" /> Show Timer
+                    <Button
+                        onClick={() => setIsTimerVisible(true)}
+                        variant="secondary"
+                        size="icon"
+                        className="fixed top-20 right-4 z-20 md:hidden rounded-full shadow-lg"
+                    >
+                        <Clock className="h-5 w-5" />
+                        <span className="sr-only">Show Timer</span>
                     </Button>
                 )}
-            </div>
+             </>
            )}
 
             {/* Mobile-only Collapsible Navigation */}
