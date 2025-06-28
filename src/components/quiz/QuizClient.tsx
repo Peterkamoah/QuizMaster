@@ -15,7 +15,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, EyeOff, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface QuizClientProps {
@@ -37,6 +37,11 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [startTime] = useState(Date.now());
   const [timeTaken, setTimeTaken] = useState(0);
+
+  // State for timer functionality
+  const [timeLeft, setTimeLeft] = useState(timerDuration > 0 ? timerDuration * 60 : 0);
+  const [isTimerVisible, setIsTimerVisible] = useState(true);
+  const isTimeCritical = timeLeft < 60; // 1 minute threshold
 
   useEffect(() => {
     setSelectedAnswer(answers[currentQuestionIndex]);
@@ -120,16 +125,28 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
         
         {/* Main Content Area */}
         <div className="md:col-span-3 space-y-6">
-           {/* Mobile-only Timer */}
+           {/* Mobile-only Timer with sticky and hide/show functionality */}
            {timerDuration > 0 && (
-             <Card className="shadow-md md:hidden">
-                <CardHeader className="p-4">
-                  <CardTitle className="text-center text-lg">Time Remaining</CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-center p-4 pt-0">
-                  <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} />
-                </CardContent>
-             </Card>
+             <div className="md:hidden sticky top-4 z-20">
+                {isTimerVisible ? (
+                    <Card className={cn("shadow-lg transition-colors", isTimeCritical && "bg-destructive/10 border-destructive")}>
+                        <CardHeader className="flex-row items-center justify-between p-3">
+                            <CardTitle className="text-lg">Time Remaining</CardTitle>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsTimerVisible(false)}>
+                                <EyeOff className="h-4 w-4" />
+                                <span className="sr-only">Hide Timer</span>
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="flex justify-center p-4 pt-0">
+                            <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} onTick={setTimeLeft} />
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <Button onClick={() => setIsTimerVisible(true)} className="w-full">
+                        <Clock className="mr-2 h-4 w-4" /> Show Timer
+                    </Button>
+                )}
+            </div>
            )}
 
             {/* Mobile-only Collapsible Navigation */}
@@ -197,12 +214,12 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
         {/* Desktop Sidebar */}
         <div className="hidden md:block md:col-span-1 space-y-6">
            {timerDuration > 0 && (
-             <Card className="shadow-md">
+             <Card className={cn("shadow-md transition-colors", isTimeCritical && "bg-destructive/10 border-destructive")}>
                 <CardHeader>
                   <CardTitle className="text-center text-lg">Time Remaining</CardTitle>
                 </CardHeader>
                 <CardContent className="flex justify-center">
-                  <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} />
+                  <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} onTick={setTimeLeft} />
                 </CardContent>
              </Card>
            )}

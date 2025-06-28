@@ -6,15 +6,19 @@ import { Clock } from 'lucide-react';
 interface TimerProps {
   durationInMinutes: number;
   onTimeUp: () => void;
+  onTick?: (secondsLeft: number) => void;
 }
 
-export function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
+export function Timer({ durationInMinutes, onTimeUp, onTick }: TimerProps) {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    // Set initial time on client-side to avoid hydration mismatch
-    setTimeLeft(durationInMinutes * 60);
-  }, [durationInMinutes]);
+    const initialSeconds = durationInMinutes * 60;
+    setTimeLeft(initialSeconds);
+    if (onTick) {
+      onTick(initialSeconds);
+    }
+  }, [durationInMinutes, onTick]);
 
   useEffect(() => {
     if (timeLeft === null) return;
@@ -24,11 +28,17 @@ export function Timer({ durationInMinutes, onTimeUp }: TimerProps) {
     }
 
     const intervalId = setInterval(() => {
-      setTimeLeft((prevTime) => (prevTime !== null ? prevTime - 1 : null));
+      setTimeLeft((prevTime) => {
+        const newTime = prevTime !== null ? prevTime - 1 : null;
+        if (newTime !== null && onTick) {
+          onTick(newTime);
+        }
+        return newTime;
+      });
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [timeLeft, onTimeUp]);
+  }, [timeLeft, onTimeUp, onTick]);
   
   if (timeLeft === null) {
     return (
