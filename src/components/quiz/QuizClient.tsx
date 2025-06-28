@@ -31,7 +31,6 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
 
-  const [flaggedQuestions, setFlaggedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [visitedQuestions, setVisitedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
@@ -81,12 +80,6 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = optionIndex;
     setAnswers(newAnswers);
-  };
-
-  const handleFlag = () => {
-    const newFlags = [...flaggedQuestions];
-    newFlags[currentQuestionIndex] = !newFlags[currentQuestionIndex];
-    setFlaggedQuestions(newFlags);
   };
 
   const handleNext = () => {
@@ -174,12 +167,11 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
                  <QuizNavPanel
                     totalQuestions={questions.length}
                     answers={answers}
-                    flaggedQuestions={flaggedQuestions}
                     visitedQuestions={visitedQuestions}
                     currentQuestionIndex={currentQuestionIndex}
                     onSelectQuestion={(index) => {
                       handleSelectQuestion(index);
-                      setIsMobileNavOpen(false); // Close after selection
+                      // setIsMobileNavOpen(false); // Removed to keep panel open
                     }}
                     onSubmit={() => {
                       setShowSubmissionModal(true);
@@ -202,8 +194,6 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
                 question={questions[currentQuestionIndex]}
                 selectedAnswer={selectedAnswer}
                 onAnswerChange={handleAnswerChange}
-                onFlag={handleFlag}
-                isFlagged={flaggedQuestions[currentQuestionIndex]}
                 onNext={handleNext}
                 onPrev={handlePrev}
                 isFirstQuestion={currentQuestionIndex === 0}
@@ -235,7 +225,6 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
           <QuizNavPanel
             totalQuestions={questions.length}
             answers={answers}
-            flaggedQuestions={flaggedQuestions}
             visitedQuestions={visitedQuestions}
             currentQuestionIndex={currentQuestionIndex}
             onSelectQuestion={handleSelectQuestion}

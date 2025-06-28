@@ -1,12 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Flag } from 'lucide-react';
 
 interface QuizNavPanelProps {
   totalQuestions: number;
   answers: (number | null)[];
-  flaggedQuestions: boolean[];
   visitedQuestions: boolean[];
   currentQuestionIndex: number;
   onSelectQuestion: (index: number) => void;
@@ -16,7 +14,6 @@ interface QuizNavPanelProps {
 export function QuizNavPanel({
   totalQuestions,
   answers,
-  flaggedQuestions,
   visitedQuestions,
   currentQuestionIndex,
   onSelectQuestion,
@@ -31,7 +28,6 @@ export function QuizNavPanel({
         {Array.from({ length: totalQuestions }).map((_, index) => {
           const isCurrent = index === currentQuestionIndex;
           const isAnswered = answers[index] !== null;
-          const isFlagged = flaggedQuestions[index];
           const isVisited = visitedQuestions[index];
 
           return (
@@ -54,7 +50,6 @@ export function QuizNavPanel({
               )}
             >
               {index + 1}
-              {isFlagged && <Flag className="absolute top-0.5 right-0.5 h-3 w-3 text-accent fill-accent" />}
             </Button>
           );
         })}

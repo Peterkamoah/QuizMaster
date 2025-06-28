@@ -3,7 +3,6 @@ import type { Question } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Flag } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import KatexRenderer from './KatexRenderer';
@@ -12,8 +11,6 @@ interface QuestionDisplayProps {
   question: Question;
   selectedAnswer: number | null;
   onAnswerChange: (optionIndex: number) => void;
-  onFlag: () => void;
-  isFlagged: boolean;
   onNext: () => void;
   onPrev: () => void;
   isFirstQuestion: boolean;
@@ -24,8 +21,6 @@ export const QuestionDisplay = memo(function QuestionDisplay({
   question,
   selectedAnswer,
   onAnswerChange,
-  onFlag,
-  isFlagged,
   onNext,
   onPrev,
   isFirstQuestion,
@@ -59,15 +54,7 @@ export const QuestionDisplay = memo(function QuestionDisplay({
 
       <Separator />
 
-      <div className="flex flex-col-reverse gap-4 pt-4 md:flex-row md:justify-between md:items-center">
-        <Button
-          variant={isFlagged ? "accent" : "outline"}
-          onClick={onFlag}
-          className="w-full md:w-auto"
-        >
-          <Flag className={cn("mr-2 h-4 w-4", isFlagged && "fill-current")} />
-          {isFlagged ? 'Flagged' : 'Flag for Review'}
-        </Button>
+      <div className="flex justify-end pt-4">
         <div className="flex w-full space-x-4 md:w-auto">
           <Button variant="secondary" onClick={onPrev} disabled={isFirstQuestion} className="w-1/2 md:w-auto">
             Previous
