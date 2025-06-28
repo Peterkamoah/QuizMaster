@@ -16,8 +16,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, EyeOff, Clock } from 'lucide-react';
+import { ChevronDown, EyeOff, Clock, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger } from '../ui/sheet';
 
 interface QuizClientProps {
   questions: Question[];
@@ -39,9 +40,9 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   const [timeTaken, setTimeTaken] = useState(0);
 
   // State for timer functionality
-  const [timeLeft, setTimeLeft] = useState(timerDuration > 0 ? timerDuration * 60 : 0);
+  const [timeLeft, setTimeLeft] = useState(timerDuration > 0 ? timerDuration * 60 : -1);
   const [isTimerVisible, setIsTimerVisible] = useState(true);
-  const isTimeCritical = timeLeft < 60; // 1 minute threshold
+  const isTimeCritical = timeLeft >= 0 && timeLeft < 60; // 1 minute threshold
 
   useEffect(() => {
     setSelectedAnswer(answers[currentQuestionIndex]);
@@ -71,9 +72,31 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
     setShowSubmissionModal(false);
   }, [startTime]);
 
-  const handleTimeUp = useCallback(() => {
-    handleSubmit();
-  }, [handleSubmit]);
+  // This effect handles the timer countdown logic. It's in the parent component
+  // so the timer's state persists even when the mobile timer is hidden.
+  useEffect(() => {
+    // Only run the timer if it's enabled and the quiz isn't submitted.
+    if (timerDuration <= 0 || isSubmitted) {
+      return;
+    }
+
+    // When time is up, submit the quiz.
+    if (timeLeft === 0) {
+      handleSubmit();
+      return;
+    }
+
+    // Don't start the interval if time is not initialized yet.
+    if (timeLeft < 0) {
+      return;
+    }
+
+    const timerId = setInterval(() => {
+      setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [timeLeft, timerDuration, isSubmitted, handleSubmit]);
 
   const handleAnswerChange = (optionIndex: number) => {
     setSelectedAnswer(optionIndex);
@@ -133,7 +156,7 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
                                 </Button>
                             </CardHeader>
                             <CardContent className="flex justify-center p-4 pt-0">
-                                <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} onTick={setTimeLeft} />
+                                <Timer secondsLeft={timeLeft} />
                             </CardContent>
                         </Card>
                     </div>
@@ -169,10 +192,7 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
                     answers={answers}
                     visitedQuestions={visitedQuestions}
                     currentQuestionIndex={currentQuestionIndex}
-                    onSelectQuestion={(index) => {
-                      handleSelectQuestion(index);
-                      // setIsMobileNavOpen(false); // Removed to keep panel open
-                    }}
+                    onSelectQuestion={handleSelectQuestion}
                     onSubmit={() => {
                       setShowSubmissionModal(true);
                       setIsMobileNavOpen(false);
@@ -218,7 +238,7 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
                   <CardTitle className="text-center text-lg">Time Remaining</CardTitle>
                 </CardHeader>
                 <CardContent className="flex justify-center">
-                  <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} onTick={setTimeLeft} />
+                  <Timer secondsLeft={timeLeft} />
                 </CardContent>
              </Card>
            )}
