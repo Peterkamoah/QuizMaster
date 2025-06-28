@@ -9,6 +9,15 @@ import { SubmissionModal } from './SubmissionModal';
 import { Timer } from './Timer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Menu } from 'lucide-react';
 
 interface QuizClientProps {
   questions: Question[];
@@ -20,24 +29,21 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(() => Array(questions.length).fill(null));
   
-  // This state holds the selected answer for the *current* question only.
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
 
   const [flaggedQuestions, setFlaggedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [visitedQuestions, setVisitedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [startTime] = useState(Date.now());
   const [timeTaken, setTimeTaken] = useState(0);
 
-  // This effect runs every time the question changes
-  // It resets the selected answer for the new question based on the stored answers array.
   useEffect(() => {
     setSelectedAnswer(answers[currentQuestionIndex]);
   }, [currentQuestionIndex, answers]);
 
   useEffect(() => {
-    // Mark the initial question as visited
     if (questions.length > 0) {
       const newVisited = [...visitedQuestions];
       newVisited[0] = true;
@@ -66,10 +72,10 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   }, [handleSubmit]);
 
   const handleAnswerChange = (optionIndex: number) => {
-    setSelectedAnswer(optionIndex); // Update UI immediately for current question
+    setSelectedAnswer(optionIndex);
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = optionIndex;
-    setAnswers(newAnswers); // Save answer permanently
+    setAnswers(newAnswers);
   };
 
   const handleFlag = () => {
@@ -111,13 +117,60 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
 
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        {/* Main Content Area */}
+        <div className="md:col-span-3 space-y-6">
+           {/* Mobile-only Timer */}
+           {timerDuration > 0 && (
+             <Card className="shadow-md md:hidden">
+                <CardHeader className="p-4">
+                  <CardTitle className="text-center text-lg">Time Remaining</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center p-4 pt-0">
+                  <Timer durationInMinutes={timerDuration} onTimeUp={handleTimeUp} />
+                </CardContent>
+             </Card>
+           )}
+
           <Card className="shadow-md">
             <CardHeader>
               <div className="flex justify-between items-center mb-4">
                 <CardTitle>Question {currentQuestionIndex + 1} of {questions.length}</CardTitle>
-                <div className="text-sm text-muted-foreground">{answeredCount} of {questions.length} Answered</div>
+                
+                <div className="hidden md:block text-sm text-muted-foreground">{answeredCount} of {questions.length} Answered</div>
+                
+                {/* Mobile Nav Trigger */}
+                <div className="md:hidden">
+                  <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <Menu className="h-4 w-4" />
+                        <span className="sr-only">Open Questions Navigation</span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right">
+                       <SheetHeader className="mb-4 text-left">
+                         <SheetTitle>Quiz Navigation</SheetTitle>
+                       </SheetHeader>
+                       <QuizNavPanel
+                          totalQuestions={questions.length}
+                          answers={answers}
+                          flaggedQuestions={flaggedQuestions}
+                          visitedQuestions={visitedQuestions}
+                          currentQuestionIndex={currentQuestionIndex}
+                          onSelectQuestion={(index) => {
+                            handleSelectQuestion(index);
+                            setMobileNavOpen(false);
+                          }}
+                          onSubmit={() => {
+                            setMobileNavOpen(false);
+                            setShowSubmissionModal(true);
+                          }}
+                       />
+                    </SheetContent>
+                  </Sheet>
+                </div>
               </div>
               <Progress value={progressPercentage} className="w-full" />
             </CardHeader>
@@ -135,8 +188,17 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
               />
             </CardContent>
           </Card>
+
+          {/* Mobile-only Finish Button */}
+          <div className="md:hidden">
+            <Button className="w-full" size="lg" onClick={() => setShowSubmissionModal(true)}>
+              Finish Attempt...
+            </Button>
+          </div>
         </div>
-        <div className="lg:col-span-1 space-y-6">
+        
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block md:col-span-1 space-y-6">
            {timerDuration > 0 && (
              <Card className="shadow-md">
                 <CardHeader>

@@ -23,11 +23,11 @@ export function QuizNavPanel({
   onSubmit
 }: QuizNavPanelProps) {
   return (
-    <Card className="sticky top-6 shadow-md">
+    <Card className="shadow-md md:sticky md:top-6">
       <CardHeader>
         <CardTitle>Quiz Navigation</CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-5 md:grid-cols-6 gap-2">
+      <CardContent className="grid grid-cols-5 md:grid-cols-4 lg:grid-cols-5 gap-2">
         {Array.from({ length: totalQuestions }).map((_, index) => {
           const isCurrent = index === currentQuestionIndex;
           const isAnswered = answers[index] !== null;
@@ -56,7 +56,7 @@ export function QuizNavPanel({
           );
         })}
       </CardContent>
-      <CardFooter className="flex-col space-y-2 mt-4">
+      <CardFooter className="hidden md:flex flex-col space-y-2 mt-4">
         <Button className="w-full" onClick={onSubmit}>
           Finish Attempt...
         </Button>

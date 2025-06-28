@@ -58,19 +58,20 @@ export function QuestionDisplay({
 
       <Separator />
 
-      <div className="flex justify-between items-center flex-wrap gap-4">
+      <div className="flex flex-col-reverse gap-4 pt-4 md:flex-row md:justify-between md:items-center">
         <Button
           variant={isFlagged ? "accent" : "outline"}
           onClick={onFlag}
+          className="w-full md:w-auto"
         >
           <Flag className={cn("mr-2 h-4 w-4", isFlagged && "fill-current")} />
           {isFlagged ? 'Flagged' : 'Flag for Review'}
         </Button>
-        <div className="flex space-x-4">
-          <Button variant="secondary" onClick={onPrev} disabled={isFirstQuestion}>
+        <div className="flex w-full space-x-4 md:w-auto">
+          <Button variant="secondary" onClick={onPrev} disabled={isFirstQuestion} className="w-1/2 md:w-auto">
             Previous
           </Button>
-          <Button onClick={onNext}>
+          <Button onClick={onNext} className="w-1/2 md:w-auto">
             {isLastQuestion ? 'Finish Attempt...' : 'Next'}
           </Button>
         </div>
