@@ -38,7 +38,10 @@ export function QuizNavPanel({
             <Button
               key={index}
               size="icon"
-              onClick={() => onSelectQuestion(index)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectQuestion(index);
+              }}
               className={cn(
                 'h-10 w-10 transition-all duration-200 font-bold relative',
                 isCurrent

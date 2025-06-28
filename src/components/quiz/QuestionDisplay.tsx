@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Question } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -19,7 +20,7 @@ interface QuestionDisplayProps {
   isLastQuestion: boolean;
 }
 
-export function QuestionDisplay({
+export const QuestionDisplay = memo(function QuestionDisplay({
   question,
   selectedAnswer,
   onAnswerChange,
@@ -78,4 +79,4 @@ export function QuestionDisplay({
       </div>
     </div>
   );
-}
+});
