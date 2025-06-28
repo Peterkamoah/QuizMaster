@@ -11,13 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Menu } from 'lucide-react';
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface QuizClientProps {
   questions: Question[];
@@ -35,7 +34,7 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
   const [visitedQuestions, setVisitedQuestions] = useState<boolean[]>(() => Array(questions.length).fill(false));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [startTime] = useState(Date.now());
   const [timeTaken, setTimeTaken] = useState(0);
 
@@ -133,44 +132,42 @@ export function QuizClient({ questions, timerDuration, onReturnHome }: QuizClien
              </Card>
            )}
 
+            {/* Mobile-only Collapsible Navigation */}
+            <Collapsible
+              open={isMobileNavOpen}
+              onOpenChange={setIsMobileNavOpen}
+              className="space-y-2 md:hidden"
+            >
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full flex justify-between">
+                  <span>Question Navigation</span>
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", isMobileNavOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                 <QuizNavPanel
+                    totalQuestions={questions.length}
+                    answers={answers}
+                    flaggedQuestions={flaggedQuestions}
+                    visitedQuestions={visitedQuestions}
+                    currentQuestionIndex={currentQuestionIndex}
+                    onSelectQuestion={(index) => {
+                      handleSelectQuestion(index);
+                      setIsMobileNavOpen(false); // Close after selection
+                    }}
+                    onSubmit={() => {
+                      setShowSubmissionModal(true);
+                      setIsMobileNavOpen(false);
+                    }}
+                 />
+              </CollapsibleContent>
+            </Collapsible>
+
           <Card className="shadow-md">
             <CardHeader>
               <div className="flex justify-between items-center mb-4">
                 <CardTitle>Question {currentQuestionIndex + 1} of {questions.length}</CardTitle>
-                
                 <div className="hidden md:block text-sm text-muted-foreground">{answeredCount} of {questions.length} Answered</div>
-                
-                {/* Mobile Nav Trigger */}
-                <div className="md:hidden">
-                  <Sheet open={mobileNavOpen} onOpenChange={setMobileNavOpen}>
-                    <SheetTrigger asChild>
-                      <Button variant="outline" size="icon">
-                        <Menu className="h-4 w-4" />
-                        <span className="sr-only">Open Questions Navigation</span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right">
-                       <SheetHeader className="mb-4 text-left">
-                         <SheetTitle>Quiz Navigation</SheetTitle>
-                       </SheetHeader>
-                       <QuizNavPanel
-                          totalQuestions={questions.length}
-                          answers={answers}
-                          flaggedQuestions={flaggedQuestions}
-                          visitedQuestions={visitedQuestions}
-                          currentQuestionIndex={currentQuestionIndex}
-                          onSelectQuestion={(index) => {
-                            handleSelectQuestion(index);
-                            setMobileNavOpen(false);
-                          }}
-                          onSubmit={() => {
-                            setMobileNavOpen(false);
-                            setShowSubmissionModal(true);
-                          }}
-                       />
-                    </SheetContent>
-                  </Sheet>
-                </div>
               </div>
               <Progress value={progressPercentage} className="w-full" />
             </CardHeader>
