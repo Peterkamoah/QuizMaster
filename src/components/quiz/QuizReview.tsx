@@ -35,40 +35,50 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
             setIsDownloading(false);
             return;
         }
+
+        let iframe: HTMLIFrameElement | null = null;
     
         try {
             const { default: jsPDF } = await import('jspdf');
             const { default: html2canvas } = await import('html2canvas');
     
-            const iframe = document.createElement('iframe');
+            iframe = document.createElement('iframe');
             iframe.style.position = 'absolute';
-            iframe.style.width = '0';
-            iframe.style.height = '0';
+            iframe.style.left = '-9999px'; // Position off-screen
+            iframe.style.top = '-9999px';
+            iframe.style.width = '1200px'; // Render in a wide viewport for better layout
+            iframe.style.height = 'auto'; // Let height be automatic
             iframe.style.border = 'none';
-            iframe.style.visibility = 'hidden';
     
             document.body.appendChild(iframe);
     
             const iframeDoc = iframe.contentWindow!.document;
     
+            // Copy all stylesheets from the main document to the iframe
             const styleSheets = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'));
             styleSheets.forEach(sheet => {
                 iframeDoc.head.appendChild(sheet.cloneNode(true));
             });
     
+            // Wait for fonts and styles to be ready in the iframe
+            await iframe.contentWindow!.document.fonts.ready;
+    
+            // Clone the content and add it to the iframe
             const clonedContent = printElement.cloneNode(true) as HTMLElement;
             iframeDoc.body.appendChild(clonedContent);
     
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // Force light mode by removing the 'dark' class from the iframe's root
+            iframeDoc.documentElement.classList.remove('dark');
+            
+            // Give a brief moment for final rendering
+            await new Promise(resolve => setTimeout(resolve, 300));
     
             const canvas = await html2canvas(iframeDoc.body, {
-                scale: 1,
+                scale: 1, // Use scale 1 to prevent "Canvas exceeds max size" error
                 useCORS: true,
                 windowWidth: iframeDoc.documentElement.scrollWidth,
                 windowHeight: iframeDoc.documentElement.scrollHeight,
             });
-    
-            document.body.removeChild(iframe);
     
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4', true);
@@ -96,13 +106,11 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
         } catch (error) {
             console.error("Failed to generate PDF:", error);
             alert("Failed to download PDF. Please try again.");
-            const iframes = document.querySelectorAll('iframe');
-            iframes.forEach(iframe => {
-                if (iframe.style.visibility === 'hidden') {
-                    document.body.removeChild(iframe);
-                }
-            });
         } finally {
+            // Guaranteed cleanup of the specific iframe we created
+            if (iframe) {
+                document.body.removeChild(iframe);
+            }
             setIsDownloading(false);
         }
     };
