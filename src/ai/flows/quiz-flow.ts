@@ -59,24 +59,38 @@ const generateQuizFlow = ai.defineFlow(
     outputSchema: QuizGenerationOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    
-    // First attempt check
-    if (output && output.length === input.numQuestions) {
-      return output;
+    // Set a max number of questions to generate in a single API call to avoid model output limits.
+    const CHUNK_SIZE = 25;
+    const promises = [];
+    let remainingQuestions = input.numQuestions;
+
+    while (remainingQuestions > 0) {
+      const questionsInChunk = Math.min(remainingQuestions, CHUNK_SIZE);
+      const chunkInput = { ...input, numQuestions: questionsInChunk };
+      promises.push(prompt(chunkInput));
+      remainingQuestions -= questionsInChunk;
     }
 
-    // If first attempt fails, log it and retry once.
-    console.warn(`AI failed to generate exact number of questions on first try. Expected ${input.numQuestions}, got ${output?.length || 0}. Retrying...`);
+    // Use Promise.allSettled to handle potential failures in individual chunks.
+    const results = await Promise.allSettled(promises);
     
-    const { output: secondOutput } = await prompt(input);
-
-    if (secondOutput && secondOutput.length === input.numQuestions) {
-      return secondOutput;
+    const allQuestions = [];
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value.output) {
+        // Add questions from successful chunks.
+        allQuestions.push(...result.value.output);
+      } else if (result.status === 'rejected') {
+        // Log errors from failed chunks but don't stop the entire process.
+        console.error("A quiz generation chunk failed:", result.reason);
+      }
     }
 
-    // If both attempts fail, throw a specific error to be handled by the client.
-    const generatedCount = secondOutput?.length || output?.length || 0;
-    throw new Error(`The AI failed to generate exactly ${input.numQuestions} questions, generating ${generatedCount} instead. Please try reducing the number of questions or modifying the source text.`);
+    // If, after all chunks, we still don't have enough questions, it's an unrecoverable error.
+    if (allQuestions.length < input.numQuestions) {
+      throw new Error(`The AI failed to generate all questions. It produced ${allQuestions.length} out of ${input.numQuestions} requested. Please try again.`);
+    }
+
+    // Truncate the result to the exact number requested, in case any chunk over-produced.
+    return allQuestions.slice(0, input.numQuestions);
   }
 );
