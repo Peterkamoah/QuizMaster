@@ -28,26 +28,50 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
 
     const handleDownloadPdf = async () => {
         setIsDownloading(true);
-        const element = downloadContainerRef.current;
-        if (!element) {
+        const printElement = downloadContainerRef.current;
+    
+        if (!printElement) {
             alert("Could not find content to download.");
             setIsDownloading(false);
             return;
         }
-
+    
         try {
             const { default: jsPDF } = await import('jspdf');
             const { default: html2canvas } = await import('html2canvas');
-
-            const canvas = await html2canvas(element, { 
-                scale: 2, 
-                windowWidth: element.scrollWidth, 
-                windowHeight: element.scrollHeight,
-                useCORS: true, 
+    
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = 'none';
+            iframe.style.visibility = 'hidden';
+    
+            document.body.appendChild(iframe);
+    
+            const iframeDoc = iframe.contentWindow!.document;
+    
+            const styleSheets = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'));
+            styleSheets.forEach(sheet => {
+                iframeDoc.head.appendChild(sheet.cloneNode(true));
             });
-            
+    
+            const clonedContent = printElement.cloneNode(true) as HTMLElement;
+            iframeDoc.body.appendChild(clonedContent);
+    
+            await new Promise(resolve => setTimeout(resolve, 200));
+    
+            const canvas = await html2canvas(iframeDoc.body, {
+                scale: 1,
+                useCORS: true,
+                windowWidth: iframeDoc.documentElement.scrollWidth,
+                windowHeight: iframeDoc.documentElement.scrollHeight,
+            });
+    
+            document.body.removeChild(iframe);
+    
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdf = new jsPDF('p', 'mm', 'a4', true);
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
             
@@ -57,20 +81,27 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
             let heightLeft = imgHeight;
             let position = 0;
     
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
             heightLeft -= pdfHeight;
     
             while (heightLeft > 0) {
                 position = heightLeft - imgHeight;
                 pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight, undefined, 'FAST');
                 heightLeft -= pdfHeight;
             }
             
             pdf.save(`quiz-review-score.pdf`);
+    
         } catch (error) {
             console.error("Failed to generate PDF:", error);
             alert("Failed to download PDF. Please try again.");
+            const iframes = document.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                if (iframe.style.visibility === 'hidden') {
+                    document.body.removeChild(iframe);
+                }
+            });
         } finally {
             setIsDownloading(false);
         }

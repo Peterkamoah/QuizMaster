@@ -13,7 +13,7 @@ export const FullReviewForPdf = forwardRef<
     HTMLDivElement,
     { questions: Question[]; answers: (number | null)[]; score: number }
 >(({ questions, answers, score }, ref) => (
-    <div ref={ref} className="bg-white text-black p-8" style={{ width: '1200px' }}>
+    <div ref={ref} className="bg-white text-black p-8" style={{ width: '900px' }}>
         <h1 className="text-4xl font-bold text-center mb-4">Quiz Review</h1>
         <h2 className="text-2xl font-bold text-center mb-8">Final Score: {score}%</h2>
         {questions.map((question, index) => (
