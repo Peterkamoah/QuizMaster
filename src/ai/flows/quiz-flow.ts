@@ -35,13 +35,15 @@ const prompt = ai.definePrompt({
   name: 'quizGenerationPrompt',
   input: { schema: QuizGenerationInputSchema },
   output: { schema: QuizGenerationOutputSchema },
-  prompt: `You are an expert quiz creator. Based on the following context, generate a {{{numQuestions}}}-question multiple-choice quiz with a '{{{difficulty}}}' difficulty level.
+  prompt: `You are an expert quiz creator. Your task is to generate EXACTLY {{{numQuestions}}} multiple-choice questions based on the provided context.
+The difficulty of the questions must be '{{{difficulty}}}'.
 
-Each question must have exactly 4 options.
-Each question must have a detailed explanation for the correct answer.
-Ensure that any mathematical equations, formulas, or chemical notations are formatted using LaTeX delimiters. Use $...$ for inline math and $$...$$ for block-level math.
+Your response MUST be a valid JSON object that is an array containing exactly {{{numQuestions}}} question objects. Do not generate more or fewer questions than requested.
 
-The response must be a valid JSON object containing an array of {{{numQuestions}}} question objects, strictly following the provided JSON schema.
+Each question must have:
+1.  Exactly 4 multiple-choice options.
+2.  A detailed explanation for why the correct answer is correct.
+3.  Mathematical equations, formulas, or chemical notations formatted using LaTeX delimiters ($...$ for inline, $$...$$ for block-level).
 
 Context:
 ---
@@ -58,6 +60,19 @@ const generateQuizFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    return output || [];
+    
+    if (!output) {
+      return [];
+    }
+    
+    // Ensure the number of questions matches the request.
+    // If the model generates more, truncate the list.
+    if (output.length > input.numQuestions) {
+      return output.slice(0, input.numQuestions);
+    }
+    
+    // If the model generates fewer, we return what we have,
+    // which is better than returning nothing.
+    return output;
   }
 );
