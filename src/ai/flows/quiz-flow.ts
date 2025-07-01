@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert quiz creator. Your task is to generate EXACTLY {{{numQuestions}}} multiple-choice questions based on the provided context.
 The difficulty of the questions must be '{{{difficulty}}}'.
 
-Your response MUST be a valid JSON object that is an array containing exactly {{{numQuestions}}} question objects. Do not generate more or fewer questions than requested.
+It is absolutely critical that you generate the precise number of questions requested. Your response MUST be a valid JSON object that is an array containing exactly {{{numQuestions}}} question objects. Do not generate more or fewer questions than requested. Failure to comply will result in an error.
 
 Each question must have:
 1.  Exactly 4 multiple-choice options.
@@ -61,18 +61,22 @@ const generateQuizFlow = ai.defineFlow(
   async (input) => {
     const { output } = await prompt(input);
     
-    if (!output) {
-      return [];
+    // First attempt check
+    if (output && output.length === input.numQuestions) {
+      return output;
     }
+
+    // If first attempt fails, log it and retry once.
+    console.warn(`AI failed to generate exact number of questions on first try. Expected ${input.numQuestions}, got ${output?.length || 0}. Retrying...`);
     
-    // Ensure the number of questions matches the request.
-    // If the model generates more, truncate the list.
-    if (output.length > input.numQuestions) {
-      return output.slice(0, input.numQuestions);
+    const { output: secondOutput } = await prompt(input);
+
+    if (secondOutput && secondOutput.length === input.numQuestions) {
+      return secondOutput;
     }
-    
-    // If the model generates fewer, we return what we have,
-    // which is better than returning nothing.
-    return output;
+
+    // If both attempts fail, throw a specific error to be handled by the client.
+    const generatedCount = secondOutput?.length || output?.length || 0;
+    throw new Error(`The AI failed to generate exactly ${input.numQuestions} questions, generating ${generatedCount} instead. Please try reducing the number of questions or modifying the source text.`);
   }
 );
