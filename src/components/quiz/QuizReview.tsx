@@ -51,8 +51,15 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
             iframe.style.border = 'none';
     
             document.body.appendChild(iframe);
+            
+            // Wait for browser's next event loop to ensure iframe is initialized
+            await new Promise(resolve => setTimeout(resolve, 0));
+
+            if (!iframe.contentWindow) {
+                throw new Error("Unable to find iframe window");
+            }
     
-            const iframeDoc = iframe.contentWindow!.document;
+            const iframeDoc = iframe.contentWindow.document;
     
             // Copy all stylesheets from the main document to the iframe
             const styleSheets = Array.from(document.querySelectorAll('link[rel="stylesheet"], style'));
@@ -61,7 +68,7 @@ export function QuizReview({ questions, answers, score, onReturnHome, onReturnTo
             });
     
             // Wait for fonts and styles to be ready in the iframe
-            await iframe.contentWindow!.document.fonts.ready;
+            await iframe.contentWindow.document.fonts.ready;
     
             // Clone the content and add it to the iframe
             const clonedContent = printElement.cloneNode(true) as HTMLElement;
