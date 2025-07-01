@@ -13,7 +13,7 @@ import { z } from 'zod';
 const QuizGenerationInputSchema = z.object({
   context: z.string().describe('The text content to generate the quiz from.'),
   difficulty: z.string().describe('The difficulty level for the quiz questions. e.g., Easy, Medium, Hard.'),
-  numQuestions: z.number().min(1).max(20).describe('The number of questions to generate.'),
+  numQuestions: z.number().min(1).max(50).describe('The number of questions to generate.'),
 });
 export type QuizGenerationInput = z.infer<typeof QuizGenerationInputSchema>;
 

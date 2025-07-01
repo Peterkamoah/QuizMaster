@@ -128,9 +128,9 @@ export function QuizSetup({ onStartQuiz, onStartSampleQuiz }: QuizSetupProps) {
                             id="num-questions"
                             type="number"
                             value={numQuestions}
-                            onChange={(e) => setNumQuestions(Math.max(1, Math.min(20, Number(e.target.value))))}
+                            onChange={(e) => setNumQuestions(Math.max(1, Math.min(50, Number(e.target.value))))}
                             min="1"
-                            max="20"
+                            max="50"
                             placeholder="e.g., 10"
                             className="dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:focus:ring-2 dark:focus:ring-blue-500 dark:focus:border-transparent"
                         />
